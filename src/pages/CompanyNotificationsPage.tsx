@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bell, ArrowLeft, Trash2, CheckCircle, FileText, XCircle, AlertCircle } from 'lucide-react'
 import { API_URL } from '../config/api.config'
+import { Skeleton } from '../components/Skeleton'
 
 interface Notification {
   id: number
@@ -137,8 +138,11 @@ export const CompanyNotificationsPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md border border-[#eb3089]/30 overflow-hidden">
           {loading ? (
             <div className="p-12 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#eb3089] border-t-transparent mx-auto mb-4"></div>
-              <p className="text-black/60">Cargando notificaciones...</p>
+              <div className="space-y-4">
+                <Skeleton variant="text" width="60%" height={24} className="mx-auto" />
+                <Skeleton variant="text" width="40%" height={16} className="mx-auto" />
+                <Skeleton count={3} />
+              </div>
             </div>
           ) : notifications.length === 0 ? (
             <div className="p-12 text-center">

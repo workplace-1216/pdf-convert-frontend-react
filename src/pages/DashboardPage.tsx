@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { documentApi } from '../services/api'
 import { FileText, Upload, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { DashboardSkeleton } from '../components/Skeleton'
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth()
@@ -142,9 +143,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-          </div>
+          <DashboardSkeleton />
         ) : documents.length === 0 ? (
           <div className="text-center py-8">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />

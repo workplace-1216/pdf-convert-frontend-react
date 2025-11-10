@@ -21,6 +21,7 @@ import JSZip from 'jszip'
 import { useAuth } from '../contexts/AuthContext'
 import { documentApi } from '../services/api'
 import { API_URL } from '../config/api.config'
+import { Skeleton } from '../components/Skeleton'
 
 // Types
 interface ReadyDocument {
@@ -764,7 +765,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       if (folder) {
         docCount += folder.documents.length
         // Estimate ~450KB per document (max is 500KB)
-        totalSize += folder.documents.length * 450 * 1024
+        totalSize += folder.documents.length * 5000 * 1024
       }
     })
     return { totalSize, docCount }
@@ -1319,10 +1320,11 @@ export const ClientReadyDocumentsPage: React.FC = () => {
   // Show loading while waiting for user/auth or while fetching
   if (loading || !user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#64c7cd] border-t-transparent"></div>
-          <p className="text-black/60">Cargando...</p>
+      <div className="flex items-center justify-center min-h-screen p-6">
+        <div className="w-full max-w-4xl space-y-4">
+          <Skeleton variant="text" width="60%" height={32} className="mx-auto" />
+          <Skeleton variant="rectangular" height={200} />
+          <Skeleton count={3} />
         </div>
       </div>
     )
@@ -1454,7 +1456,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                             : 'o haz clic para seleccionar múltiples PDF'}
                         </p>
                         <p className="text-xs text-red-500 font-medium mt-1">
-                          Tamaño máximo: 500KB por archivo
+                          Tamaño máximo: 5MB por archivo
                         </p>
                       </div>
                       {selectedFiles.length > 0 && (
@@ -1496,11 +1498,8 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                       }`}
                   >
                     {uploading ? (
-                      <div className="flex items-center justify-center">
-                        <div className="relative">
-                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white mr-3"></div>
-                          <div className="absolute inset-0 animate-ping rounded-full h-5 w-5 border border-white/20"></div>
-                        </div>
+                      <div className="flex items-center justify-center space-x-3">
+                        <Skeleton variant="circular" width={20} height={20} />
                         <span className="font-semibold">Procesando {selectedFiles.length} archivo(s)...</span>
                       </div>
                     ) : (
@@ -1676,7 +1675,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                           >
                             {downloading ? (
                               <>
-                                <div className="animate-spin rounded-full h-3 w-3 border-2 border-white/30 border-t-white"></div>
+                                <Skeleton variant="circular" width={12} height={12} />
                                 <span>Descargando...</span>
                               </>
                             ) : (
@@ -1693,7 +1692,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                           >
                             {deleting ? (
                               <>
-                                <div className="animate-spin rounded-full h-3 w-3 border-2 border-white/30 border-t-white"></div>
+                                <Skeleton variant="circular" width={12} height={12} />
                                 <span>Eliminando...</span>
                               </>
                             ) : (
@@ -1710,7 +1709,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                           >
                             {sending ? (
                               <>
-                                <div className="animate-spin rounded-full h-3 w-3 border-2 border-white/30 border-t-white"></div>
+                                <Skeleton variant="circular" width={12} height={12} />
                                 <span>Enviando...</span>
                               </>
                             ) : (
@@ -2240,8 +2239,8 @@ export const ClientReadyDocumentsPage: React.FC = () => {
               <div className="flex-1 bg-gray-100 rounded-xl p-4 overflow-hidden border border-gray-300">
                 {pdfLoading ? (
                   <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#64c7cd] mx-auto mb-4"></div>
+                    <div className="text-center space-y-4">
+                      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto"></div>
                       <p className="text-black">Cargando PDF...</p>
                     </div>
                   </div>

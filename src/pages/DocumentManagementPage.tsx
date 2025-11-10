@@ -16,12 +16,12 @@ import {
   XCircle,
   ChevronLeft,
   ChevronRight,
-  Trash2,
-  Loader2
+  Trash2
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { adminApi } from '../services/api'
 import { API_URL } from '../config/api.config'
+import { DashboardSkeleton } from '../components/Skeleton'
 
 interface Document {
   id: string
@@ -358,11 +358,8 @@ export const DocumentManagementPage: React.FC = () => {
 
   if (loading && documents.length === 0) {
     return (
-      <div className="p-6 px-20 flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-16 w-16 text-[#64c7cd] animate-spin" />
-          <p className="text-lg text-black font-medium">Cargando documentos...</p>
-        </div>
+      <div className="p-6 px-20">
+        <DashboardSkeleton />
       </div>
     )
   }
@@ -958,8 +955,8 @@ export const DocumentManagementPage: React.FC = () => {
             <div className="flex-1 bg-gray-100 rounded-xl p-4 overflow-hidden border border-gray-300">
               {pdfLoading ? (
                 <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#64c7cd] mx-auto mb-4"></div>
+                  <div className="text-center space-y-4">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto"></div>
                     <p className="text-black">Cargando PDF...</p>
                   </div>
                 </div>

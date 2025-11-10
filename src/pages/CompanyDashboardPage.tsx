@@ -465,8 +465,8 @@ export const CompanyDashboardPage: React.FC = () => {
             <div className="flex-1 p-6 overflow-hidden">
               {pdfLoading ? (
                 <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#eb3089] border-t-transparent mx-auto mb-4"></div>
+                  <div className="text-center space-y-4">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto"></div>
                     <p className="text-black">Cargando PDF...</p>
                   </div>
                 </div>

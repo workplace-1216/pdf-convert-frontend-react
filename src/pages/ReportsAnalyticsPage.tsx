@@ -6,8 +6,7 @@ import {
   Clock,
   CheckCircle,
   ArrowUpRight,
-  ArrowDownRight,
-  Loader2
+  ArrowDownRight
 } from 'lucide-react'
 import {
   LineChart,
@@ -29,6 +28,7 @@ import {
 import * as XLSX from 'xlsx'
 import { adminApi } from '../services/api'
 import type { ReportsAnalyticsResponse } from '../types/api'
+import { DashboardSkeleton } from '../components/Skeleton'
 
 // Pie colors mapping
 const TYPE_COLORS: string[] = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4']
@@ -120,11 +120,8 @@ export const ReportsAnalyticsPage: React.FC = () => {
 
   if (loading && !data) {
     return (
-      <div className="p-6 px-20 flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-16 w-16 text-[#64c7cd] animate-spin" />
-          <p className="text-lg text-black font-medium">Cargando reportes...</p>
-        </div>
+      <div className="p-6 px-20">
+        <DashboardSkeleton />
       </div>
     )
   }

@@ -10,7 +10,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         // target: 'https://pdfconvertbackendexpress-production.up.railway.app',
-        target:'http://localhost:5000',
+        target: 'https://pdf-create-express-production.up.railway.app',
+        // target:'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       },

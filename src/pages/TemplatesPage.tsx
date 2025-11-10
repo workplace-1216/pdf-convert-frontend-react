@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { templateApi } from '../services/api'
 import { Settings, Plus, Edit, Trash2, Eye } from 'lucide-react'
+import { Skeleton } from '../components/Skeleton'
 
 export const TemplatesPage: React.FC = () => {
   const { user } = useAuth()
@@ -173,7 +174,10 @@ export const TemplatesPage: React.FC = () => {
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <div className="space-y-3">
+              <Skeleton variant="text" width="60%" height={20} className="mx-auto" />
+              <Skeleton count={3} />
+            </div>
           </div>
         ) : templates.length === 0 ? (
           <div className="text-center py-8">

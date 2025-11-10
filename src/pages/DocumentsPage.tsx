@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { documentApi } from '../services/api'
 import { Upload, FileText, Eye, Download, CheckCircle, XCircle } from 'lucide-react'
+import { TableSkeleton } from '../components/Skeleton'
 
 export const DocumentsPage: React.FC = () => {
   const [documents, setDocuments] = useState<any[]>([])
@@ -155,7 +156,9 @@ export const DocumentsPage: React.FC = () => {
                 className="btn-primary"
               >
                 {uploading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <>
+                    Processing...
+                  </>
                 ) : (
                   <>
                     <Upload className="h-4 w-4 mr-2" />
@@ -173,8 +176,8 @@ export const DocumentsPage: React.FC = () => {
         <h2 className="text-lg font-medium text-gray-900 mb-4">Processed Documents</h2>
 
         {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="py-4">
+            <TableSkeleton rows={5} />
           </div>
         ) : documents.length === 0 ? (
           <div className="text-center py-8">

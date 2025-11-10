@@ -18,13 +18,13 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Building,
-  Loader2
+  Building
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { adminApi } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { API_URL } from '../config/api.config'
+import { DashboardSkeleton, Skeleton } from '../components/Skeleton'
 
 interface User {
   id: string
@@ -567,11 +567,8 @@ export const UserManagementPage: React.FC = () => {
 
   if (loading && users.length === 0) {
     return (
-      <div className="p-4 sm:p-6 lg:px-20 flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-16 w-16 text-[#64c7cd] animate-spin" />
-          <p className="text-lg text-black font-medium">Cargando usuarios...</p>
-        </div>
+      <div className="p-4 sm:p-6 lg:px-20">
+        <DashboardSkeleton />
       </div>
     )
   }
@@ -1155,9 +1152,9 @@ export const UserManagementPage: React.FC = () => {
             <div className="overflow-x-auto">
               {loadingCompanies ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#eb3089]"></div>
-                    <p className="text-sm text-black/60">Cargando empresas...</p>
+                  <div className="space-y-4">
+                    <Skeleton variant="text" width="60%" height={24} className="mx-auto" />
+                    <Skeleton count={3} />
                   </div>
                 </div>
               ) : (

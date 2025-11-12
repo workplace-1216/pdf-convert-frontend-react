@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Building, ArrowLeft, CheckCircle, AlertCircle, Mail, Phone, FileText, Eye, EyeOff, XCircle, MessageCircle } from 'lucide-react'
+import { Building, ArrowLeft, CheckCircle, AlertCircle, Mail, FileText, Eye, EyeOff, XCircle, MessageCircle } from 'lucide-react'
 import { API_URL } from '../config/api.config'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'

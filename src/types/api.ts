@@ -19,6 +19,7 @@ export interface RegisterRequest {
   email: string
   tempPassword: string
   rfc?: string
+  whatsappNumber?: string
   role?: 'Admin' | 'Client' | 'Company'
 }
 

@@ -1164,7 +1164,7 @@ export const UserManagementPage: React.FC = () => {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-black">Empresa</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-black">RFC</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-black">Email</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">Teléfono</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">WhatsApp</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-black">Fecha</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-black">Acciones</th>
                   </tr>
@@ -1192,7 +1192,7 @@ export const UserManagementPage: React.FC = () => {
                           <span className="text-xs text-black">{company.email}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-xs text-black/60">{company.phone || '-'}</span>
+                          <span className="text-xs text-black/60">{company.whatsapp || '-'}</span>
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-xs text-black/60">{company.createdAt}</span>

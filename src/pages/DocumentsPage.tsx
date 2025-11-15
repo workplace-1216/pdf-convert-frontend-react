@@ -41,13 +41,13 @@ export const DocumentsPage: React.FC = () => {
     setUploading(true)
     try {
       // Use template ID 1 as default (or 0 if no templates exist)
-      await documentApi.upload(selectedFile, 1)
+      const response = await documentApi.upload(selectedFile, 1)
       setSelectedFile(null)
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
       await fetchDocuments()
-      alert('Document uploaded and processed successfully!')
+      alert(`${response.message}\nFile: ${response.fileName}\nProcessing time: ${(response.processingTimeMs / 1000).toFixed(2)}s`)
     } catch (error) {
       console.error('Upload failed:', error)
       alert('Upload failed. Please try again.')

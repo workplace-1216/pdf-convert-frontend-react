@@ -46,12 +46,12 @@ export interface DocumentUploadRequest {
 }
 
 export interface DocumentUploadResponse {
-  documentId: number
-  status: string
+  success: boolean
   message: string
-  sourceDocumentTempId: string
-  previewPdfBase64: string
-  extractedData: Record<string, any>
+  documentId: number
+  fileName: string
+  fileSize: number
+  processingTimeMs: number
 }
 
 export interface DocumentConfirmRequest {

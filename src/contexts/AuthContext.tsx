@@ -86,10 +86,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  const register = async (userData: RegisterRequest): Promise<User> => {
+  const register = async (userData: RegisterRequest): Promise<any> => {
     try {
       const response = await authApi.registerVendor(userData)
-      
+
+      // If email verification is required, do NOT auto-login or set user state
+      if (response.requiresEmailVerification) {
+        console.log('[AuthContext] Email verification required, skipping auto-login')
+        // Return the response so LoginPage can handle OTP verification
+        return response
+      }
+
+      // Only auto-login if email verification is NOT required (legacy flow)
       // Convert RegisterVendorResponse to User format
       const user: User = {
         id: response.userId,
@@ -98,7 +106,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         createdAt: response.createdAt
       }
       setUser(user)
-      
+
       // Auto-login after registration
       const loginResponse = await authApi.login({
         email: userData.email,
@@ -106,7 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       })
       setToken(loginResponse.token)
       localStorage.setItem('token', loginResponse.token)
-      
+
       // Skip getCurrentUser call to avoid timing issues
       // The user data we have from registration is sufficient
       return user

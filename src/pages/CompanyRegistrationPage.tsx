@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Building, ArrowLeft, CheckCircle, AlertCircle, Mail, FileText, Eye, EyeOff, XCircle, MessageCircle } from 'lucide-react'
 import { API_URL } from '../config/api.config'
+import { OTPVerification } from '../components/OTPVerification'
+import { companyApi } from '../services/api'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 
@@ -21,6 +23,8 @@ export const CompanyRegistrationPage: React.FC = () => {
   const [rfcError, setRfcError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showOTPVerification, setShowOTPVerification] = useState(false)
+  const [otpEmail, setOtpEmail] = useState('')
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -80,8 +84,17 @@ export const CompanyRegistrationPage: React.FC = () => {
         body: JSON.stringify(formData)
       })
 
+      const data = await response.json()
+
       if (response.ok) {
-        setShowSuccessModal(true)
+        // Check if email verification is required (2FA)
+        if (data.requiresEmailVerification) {
+          setOtpEmail(formData.email)
+          setShowOTPVerification(true)
+        } else {
+          // Old flow (no 2FA)
+          setShowSuccessModal(true)
+        }
         // Reset form
         setFormData({
           name: '',
@@ -92,14 +105,39 @@ export const CompanyRegistrationPage: React.FC = () => {
           confirmPassword: ''
         })
       } else {
-        const errorData = await response.json()
-        setError(errorData.message || 'Error al registrar la empresa')
+        setError(data.message || 'Error al registrar la empresa')
       }
     } catch (err: any) {
       setError('Error de conexión. Por favor intente nuevamente.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleOTPVerify = async (otpCode: string) => {
+    await companyApi.verifyOTP({ email: otpEmail, otpCode })
+  }
+
+  const handleOTPResend = async () => {
+    await companyApi.resendOTP({ email: otpEmail })
+  }
+
+  const handleOTPBack = () => {
+    setShowOTPVerification(false)
+    setOtpEmail('')
+  }
+
+  // Show OTP verification screen if needed
+  if (showOTPVerification && otpEmail) {
+    return (
+      <OTPVerification
+        email={otpEmail}
+        userType="company"
+        onVerify={handleOTPVerify}
+        onResend={handleOTPResend}
+        onBack={handleOTPBack}
+      />
+    )
   }
 
   return (

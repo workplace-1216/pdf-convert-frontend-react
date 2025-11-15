@@ -27,7 +27,45 @@ export interface RegisterVendorResponse {
   userId: number
   email: string
   role: string
-  createdAt: string
+  message: string
+  requiresEmailVerification: boolean
+}
+
+export interface VerifyOTPRequest {
+  email: string
+  otpCode: string
+}
+
+export interface VerifyOTPResponse {
+  success: boolean
+  message: string
+  email?: string
+}
+
+export interface ResendOTPRequest {
+  email: string
+}
+
+export interface ResendOTPResponse {
+  success: boolean
+  message: string
+}
+
+export interface VerifyLoginOTPRequest {
+  email: string
+  otpCode: string
+}
+
+export interface VerifyLoginOTPResponse {
+  success: boolean
+  token: string
+  role: string
+  user: {
+    id: number
+    email: string
+    role: string
+    rfc?: string
+  }
 }
 
 export interface Document {
@@ -145,6 +183,7 @@ export interface CreateAdminRequest {
   name: string
   email: string
   password: string
+  whatsappNumber?: string
 }
 
 // Reports & Analytics

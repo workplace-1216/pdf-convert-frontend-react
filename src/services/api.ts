@@ -1,11 +1,17 @@
 import axios, { AxiosResponse } from 'axios'
-import { 
-  LoginRequest, 
-  LoginResponse, 
-  RegisterRequest, 
+import {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
   RegisterVendorResponse,
-  User, 
-  Document, 
+  VerifyOTPRequest,
+  VerifyOTPResponse,
+  ResendOTPRequest,
+  ResendOTPResponse,
+  VerifyLoginOTPRequest,
+  VerifyLoginOTPResponse,
+  User,
+  Document,
   DocumentUploadResponse,
   TemplateRuleSet,
   CreateTemplateRequest,
@@ -52,10 +58,19 @@ api.interceptors.response.use(
 export const authApi = {
   login: (credentials: LoginRequest): Promise<LoginResponse> =>
     api.post('/auth/login', credentials).then((res: AxiosResponse<LoginResponse>) => res.data),
-  
+
   registerVendor: (userData: RegisterRequest): Promise<RegisterVendorResponse> =>
     api.post('/auth/register', userData).then((res: AxiosResponse<RegisterVendorResponse>) => res.data),
-  
+
+  verifyOTP: (data: VerifyOTPRequest): Promise<VerifyOTPResponse> =>
+    api.post('/auth/verify-otp', data).then((res: AxiosResponse<VerifyOTPResponse>) => res.data),
+
+  resendOTP: (data: ResendOTPRequest): Promise<ResendOTPResponse> =>
+    api.post('/auth/resend-otp', data).then((res: AxiosResponse<ResendOTPResponse>) => res.data),
+
+  verifyLoginOTP: (data: VerifyLoginOTPRequest): Promise<VerifyLoginOTPResponse> =>
+    api.post('/auth/verify-login-otp', data).then((res: AxiosResponse<VerifyLoginOTPResponse>) => res.data),
+
   getCurrentUser: (): Promise<User> =>
     api.get('/auth/me').then((res: AxiosResponse<User>) => res.data),
 }
@@ -146,6 +161,14 @@ export const templateApi = {
   
   delete: (id: number): Promise<void> =>
     api.delete(`/templates/${id}`).then(() => {}),
+}
+
+export const companyApi = {
+  verifyOTP: (data: VerifyOTPRequest): Promise<VerifyOTPResponse> =>
+    api.post('/companies/verify-otp', data).then((res: AxiosResponse<VerifyOTPResponse>) => res.data),
+
+  resendOTP: (data: ResendOTPRequest): Promise<ResendOTPResponse> =>
+    api.post('/companies/resend-otp', data).then((res: AxiosResponse<ResendOTPResponse>) => res.data),
 }
 
 export const adminApi = {

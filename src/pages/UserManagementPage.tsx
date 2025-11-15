@@ -18,9 +18,12 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Building
+  Building,
+  MessageCircle
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
 import { adminApi } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { API_URL } from '../config/api.config'
@@ -67,7 +70,8 @@ export const UserManagementPage: React.FC = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    whatsappNumber: ''
   })
 
   const [feedback, setFeedback] = useState<{
@@ -286,7 +290,8 @@ export const UserManagementPage: React.FC = () => {
       const adminUser = {
         name: newUser.name.trim(),
         email: newUser.email.trim(),
-        password: newUser.password
+        password: newUser.password,
+        whatsappNumber: newUser.whatsappNumber || undefined
       }
 
       await adminApi.createAdmin(adminUser)
@@ -302,7 +307,8 @@ export const UserManagementPage: React.FC = () => {
         name: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        whatsappNumber: ''
       })
       
       // Refresh user list
@@ -1062,7 +1068,7 @@ export const UserManagementPage: React.FC = () => {
               {/* Email */}
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">
-                  Correo Electrónico 
+                  Correo Electrónico
                   <span className="text-xs text-red-500 ml-1">(debe terminar con @admin.com)</span>
                 </label>
                 <input
@@ -1073,6 +1079,35 @@ export const UserManagementPage: React.FC = () => {
                   placeholder="admin@admin.com"
                 />
                 <p className="text-xs text-gray-500 mt-1">Ejemplo: admin@admin.com, soporte@admin.com</p>
+              </div>
+
+              {/* WhatsApp Number */}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">
+                  WhatsApp (Opcional)
+                </label>
+                <div className="relative">
+                  <MessageCircle className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#25D366] z-10" />
+                  <PhoneInput
+                    country={'mx'}
+                    value={newUser.whatsappNumber}
+                    onChange={(phone) => handleInputChange('whatsappNumber', phone)}
+                    inputProps={{
+                      name: 'whatsappNumber',
+                      required: false,
+                      className: 'w-full pr-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-xl text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 text-sm sm:text-base',
+                      style: { paddingLeft: '90px' }
+                    }}
+                    containerClass="w-full"
+                    buttonClass="!bg-transparent !border-0 !absolute !left-12"
+                    dropdownClass="!bg-white !border-2 !border-gray-200 !rounded-xl !shadow-lg"
+                    searchClass="!bg-white !border-gray-200 !rounded-lg"
+                    enableSearch
+                    searchPlaceholder="Buscar país"
+                    placeholder="Número con código de país"
+                    countryCodeEditable={true}
+                  />
+                </div>
               </div>
 
               {/* Password */}

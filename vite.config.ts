@@ -9,9 +9,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://pdf-create-express-production.up.railway.app',
+        // target: 'https://pdf-create-express-production.up.railway.app',
         // target: 'https://pdfconvertbackendexpress-production.up.railway.app',
-        // target:'http://localhost:5000',
+        target:'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       },

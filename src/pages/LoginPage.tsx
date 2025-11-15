@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Zap, Sparkles, CheckCircle, Building, XCircle, AlertCircle, ArrowRight, MessageCircle } from 'lucide-react'
 import { getRoleBasedRoute } from '../utils/roleNavigation'
 import { API_URL } from '../config/api.config'
+import { OTPVerification } from '../components/OTPVerification'
+import { authApi } from '../services/api'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 
@@ -29,6 +31,9 @@ export const LoginPage: React.FC = () => {
   const [availableCompanies, setAvailableCompanies] = useState<Array<{ id: number; name: string; rfc: string; email: string }>>([])
   const [selectedCompanyIds, setSelectedCompanyIds] = useState<number[]>([])
   const [companySelectionError, setCompanySelectionError] = useState('')
+  const [showOTPVerification, setShowOTPVerification] = useState(false)
+  const [otpEmail, setOtpEmail] = useState('')
+  const [isLoginOTP, setIsLoginOTP] = useState(false)
 
   // Redirect if user is already logged in
   useEffect(() => {
@@ -53,6 +58,22 @@ export const LoginPage: React.FC = () => {
           if (loginError.response?.data?.isPending) {
             setPendingCompanyName(loginError.response.data.companyName || 'su empresa')
             setShowPendingModal(true)
+            setLoading(false)
+            return
+          }
+          // Check if email needs verification (2FA)
+          if (loginError.response?.data?.requiresEmailVerification) {
+            setOtpEmail(loginError.response.data.email || formData.email)
+            setIsLoginOTP(false)
+            setShowOTPVerification(true)
+            setLoading(false)
+            return
+          }
+          // Check if login OTP is required (2FA on every login)
+          if (loginError.response?.data?.requiresLoginOTP) {
+            setOtpEmail(loginError.response.data.email || formData.email)
+            setIsLoginOTP(true)
+            setShowOTPVerification(true)
             setLoading(false)
             return
           }
@@ -125,7 +146,11 @@ export const LoginPage: React.FC = () => {
 
   const completeRegistration = async (companyIds: number[]) => {
     setLoading(true)
+
+    console.log('[Registration] Creating user with selected company IDs:', companyIds)
+
     try {
+      // Step 1: Create user (will send OTP automatically)
       const registeredUser = await register({
         email: formData.email,
         tempPassword: formData.password,
@@ -134,7 +159,19 @@ export const LoginPage: React.FC = () => {
       })
 
       console.log('[Registration] User registered:', registeredUser)
-      console.log('[Registration] Selected company IDs:', companyIds)
+
+      // Step 2: Check if email verification is required (2FA)
+      if (registeredUser.requiresEmailVerification) {
+        console.log('[Registration] Email verification required, showing OTP screen')
+        setOtpEmail(formData.email)
+        setIsLoginOTP(false)
+        setShowOTPVerification(true)
+        setShowCompanySelectionModal(false)
+        setLoading(false)
+        // Store selected company IDs for later association after OTP verification
+        setSelectedCompanyIds(companyIds)
+        return
+      }
 
       // Associate client with selected companies
       if (companyIds.length > 0) {
@@ -233,6 +270,104 @@ export const LoginPage: React.FC = () => {
     })
     setError('')
     setRfcError('')
+  }
+
+  const handleOTPVerify = async (otpCode: string) => {
+    console.log('[LoginPage] handleOTPVerify called with:', { email: otpEmail, otpCode, isLoginOTP })
+
+    if (isLoginOTP) {
+      // Verify login OTP and get token
+      const result = await authApi.verifyLoginOTP({ email: otpEmail, otpCode })
+      console.log('[LoginPage] ✅ Login OTP verified successfully, token received')
+
+      // Manually trigger login success by calling the login function from AuthContext
+      // The token is already set by the API call
+      if (result.token) {
+        localStorage.setItem('token', result.token)
+        // Refresh the page or navigate to trigger auth context update
+        window.location.reload()
+      }
+    } else {
+      // Verify email OTP (registration)
+      await authApi.verifyOTP({ email: otpEmail, otpCode })
+      console.log('[LoginPage] ✅ Email OTP verified successfully')
+
+      // After OTP verification, login the user and associate with companies
+      console.log('[LoginPage] Logging in user after OTP verification')
+
+      try {
+        // Login to get the token
+        const loginResult = await login({ email: formData.email, password: formData.password })
+        console.log('[LoginPage] ✅ Auto-login successful after OTP verification')
+
+        // If there are selected companies, associate them
+        if (selectedCompanyIds.length > 0) {
+          console.log('[LoginPage] Associating user with companies:', selectedCompanyIds)
+
+          // Wait a bit to ensure token is available
+          await new Promise(resolve => setTimeout(resolve, 500))
+
+          const token = localStorage.getItem('token')
+          if (!token) {
+            console.error('[LoginPage] No token found after login')
+            throw new Error('Authentication failed. Please login manually.')
+          }
+
+          // Associate with companies
+          for (const companyId of selectedCompanyIds) {
+            try {
+              console.log(`[LoginPage] Adding company ${companyId}...`)
+              const response = await fetch(`${API_URL}/companies/my-companies`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ companyId })
+              })
+
+              if (response.ok) {
+                console.log(`[LoginPage] ✅ Company ${companyId} added successfully`)
+              } else {
+                const error = await response.json()
+                console.error(`[LoginPage] ❌ Failed to add company ${companyId}:`, error.message)
+              }
+            } catch (err: any) {
+              console.error(`[LoginPage] ❌ Error adding company ${companyId}:`, err)
+            }
+          }
+        }
+
+        // Navigation will be handled by useEffect when user state updates
+      } catch (loginError: any) {
+        console.error('[LoginPage] ❌ Auto-login failed after OTP verification:', loginError)
+        // If auto-login fails, user can still login manually
+        setShowOTPVerification(false)
+        setError('Email verificado. Por favor inicie sesión.')
+      }
+    }
+  }
+
+  const handleOTPResend = async () => {
+    await authApi.resendOTP({ email: otpEmail })
+  }
+
+  const handleOTPBack = () => {
+    setShowOTPVerification(false)
+    setOtpEmail('')
+  }
+
+  // Show OTP verification screen if needed
+  if (showOTPVerification && otpEmail) {
+    return (
+      <OTPVerification
+        email={otpEmail}
+        userType="client"
+        onVerify={handleOTPVerify}
+        onResend={handleOTPResend}
+        onBack={handleOTPBack}
+      />
+    )
   }
 
   return (

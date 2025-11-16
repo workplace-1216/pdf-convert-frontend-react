@@ -8,8 +8,11 @@ import { OTPVerification } from '../components/OTPVerification'
 import { authApi } from '../services/api'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
+import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 
 export const LoginPage: React.FC = () => {
+  const { t } = useTranslation()
   const { login, register, user } = useAuth()
   const navigate = useNavigate()
   const [isLogin, setIsLogin] = useState(true)
@@ -289,29 +292,19 @@ export const LoginPage: React.FC = () => {
       }
     } else {
       // Verify email OTP (registration)
-      await authApi.verifyOTP({ email: otpEmail, otpCode })
-      console.log('[LoginPage] ✅ Email OTP verified successfully')
+      const verifyResult = await authApi.verifyOTP({ email: otpEmail, otpCode })
+      console.log('[LoginPage] ✅ Email OTP verified successfully:', verifyResult)
 
-      // After OTP verification, login the user and associate with companies
-      console.log('[LoginPage] Logging in user after OTP verification')
+      // If token is returned (new registration), use it to associate companies
+      if (verifyResult.token) {
+        console.log('[LoginPage] Token received from OTP verification, logging in user')
 
-      try {
-        // Login to get the token
-        const loginResult = await login({ email: formData.email, password: formData.password })
-        console.log('[LoginPage] ✅ Auto-login successful after OTP verification')
+        // Store token
+        localStorage.setItem('token', verifyResult.token)
 
         // If there are selected companies, associate them
         if (selectedCompanyIds.length > 0) {
           console.log('[LoginPage] Associating user with companies:', selectedCompanyIds)
-
-          // Wait a bit to ensure token is available
-          await new Promise(resolve => setTimeout(resolve, 500))
-
-          const token = localStorage.getItem('token')
-          if (!token) {
-            console.error('[LoginPage] No token found after login')
-            throw new Error('Authentication failed. Please login manually.')
-          }
 
           // Associate with companies
           for (const companyId of selectedCompanyIds) {
@@ -321,7 +314,7 @@ export const LoginPage: React.FC = () => {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
+                  'Authorization': `Bearer ${verifyResult.token}`
                 },
                 body: JSON.stringify({ companyId })
               })
@@ -338,12 +331,14 @@ export const LoginPage: React.FC = () => {
           }
         }
 
-        // Navigation will be handled by useEffect when user state updates
-      } catch (loginError: any) {
-        console.error('[LoginPage] ❌ Auto-login failed after OTP verification:', loginError)
-        // If auto-login fails, user can still login manually
+        // Reload page to trigger auth context update
+        window.location.reload()
+      } else {
+        // No token returned (existing user verification), show success message
         setShowOTPVerification(false)
-        setError('Email verificado. Por favor inicie sesión.')
+        setError('')
+        alert('Email verificado exitosamente. Por favor inicie sesión.')
+        setIsLogin(true)
       }
     }
   }
@@ -388,6 +383,11 @@ export const LoginPage: React.FC = () => {
       </div>
 
       <div className="relative z-10 max-w-md w-full space-y-8">
+        {/* Language Switcher - Top Right */}
+        <div className="absolute top-0 right-0 z-20">
+          <LanguageSwitcher />
+        </div>
+
         {/* Modern Header */}
         <div className="text-center">
           <div className="relative mx-auto mb-6 group flex items-center justify-center">
@@ -395,10 +395,10 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-bold text-black mb-2">
-            {isLogin ? 'Bienvenido de vuelta' : 'Únete a nosotros'}
+            {isLogin ? t('auth.loginTitle') : t('auth.registerTitle')}
           </h2>
           <p className="text-black text-sm sm:text-base">
-            {isLogin ? 'Accede a tu centro de cumplimiento fiscal' : 'Crea tu cuenta y comienza a procesar documentos'}
+            {isLogin ? t('auth.loginSubtitle') : t('auth.registerSubtitle')}
           </p>
         </div>
 

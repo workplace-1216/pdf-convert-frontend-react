@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   FileText,
   Download,
@@ -39,6 +40,7 @@ interface Document {
 }
 
 export const DocumentManagementPage: React.FC = () => {
+  const { t } = useTranslation()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<'All' | 'Procesando' | 'Completado' | 'Error' | 'Pendiente de revisión'>('All')
   const [showStatusDropdown, setShowStatusDropdown] = useState(false)
@@ -410,8 +412,8 @@ export const DocumentManagementPage: React.FC = () => {
       {/* Header Actions */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-black">Gestión de Documentos</h2>
-          <p className="text-sm text-black">Administrar documentos procesados y pendientes ({totalDocuments} documentos)</p>
+          <h2 className="text-2xl font-bold text-black">{t('admin.documentManagement')}</h2>
+          <p className="text-sm text-black">{t('admin.manageProcessedDocuments')} ({totalDocuments} {t('admin.documents')})</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
@@ -419,7 +421,7 @@ export const DocumentManagementPage: React.FC = () => {
             className="flex items-center px-4 py-2 text-sm font-medium text-black bg-[#64c7cd]/10 border border-[#64c7cd]/30 rounded-lg hover:bg-[#64c7cd]/20 hover:border-[#64c7cd]/40 transition-all duration-300 hover:scale-105"
           >
             <Download className="h-4 w-4 mr-2" />
-            <span>Exportar</span>
+            <span>{t('admin.export')}</span>
           </button>
         </div>
       </div>
@@ -431,7 +433,7 @@ export const DocumentManagementPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-black font-medium mb-1">Total Documentos</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.totalDocuments')}</p>
               <p className="text-2xl font-bold text-black">{documents.length}</p>
             </div>
             <div className="p-3 bg-[#64c7cd] rounded-xl">
@@ -443,7 +445,7 @@ export const DocumentManagementPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-black font-medium mb-1">Procesados</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.processed')}</p>
               <p className="text-2xl font-bold text-black">{documents.filter(d => d.status === 'Completado').length}</p>
             </div>
             <div className="p-3 bg-[#a5cc55] rounded-xl">
@@ -455,7 +457,7 @@ export const DocumentManagementPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-black font-medium mb-1">En Proceso</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.inProcess')}</p>
               <p className="text-2xl font-bold text-black">{documents.filter(d => d.status === 'Procesando').length}</p>
             </div>
             <div className="p-3 bg-[#eb3089] rounded-xl">
@@ -467,7 +469,7 @@ export const DocumentManagementPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-black font-medium mb-1">Con Errores</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.withErrors')}</p>
               <p className="text-2xl font-bold text-black">{documents.filter(d => d.status === 'Error').length}</p>
             </div>
             <div className="p-3 bg-[#eb3089] rounded-xl">
@@ -486,7 +488,7 @@ export const DocumentManagementPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-black" />
               <input
                 type="text"
-                placeholder="Buscar documentos..."
+                placeholder={t('admin.searchDocuments')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-white border border-[#64c7cd]/30 rounded-xl text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#64c7cd] focus:border-transparent transition-all duration-300"
@@ -500,11 +502,11 @@ export const DocumentManagementPage: React.FC = () => {
               value={filterStatus}
               onChange={(value) => setFilterStatus(value as 'All' | 'Completado' | 'Error')}
               options={[
-                { value: 'All', label: 'Todos los estados' },
-                { value: 'Completado', label: 'Completados' },
-                { value: 'Error', label: 'Con Errores' }
+                { value: 'All', label: t('admin.allStates') },
+                { value: 'Completado', label: t('admin.completed') },
+                { value: 'Error', label: t('admin.withErrors') }
               ]}
-              placeholder="Seleccionar estado"
+              placeholder={t('admin.selectStatus')}
               isOpen={showStatusDropdown}
               onToggle={() => {
                 setShowStatusDropdown(!showStatusDropdown)
@@ -519,7 +521,7 @@ export const DocumentManagementPage: React.FC = () => {
         <div className="mb-4 flex items-center justify-between bg-[#64c7cd]/10 rounded-xl p-4 border border-[#64c7cd]/30">
           <div className="flex items-center space-x-3">
             <span className="text-sm font-medium text-black">
-              {selectedDocuments.length} documento(s) seleccionado(s)
+              {selectedDocuments.length} {t('admin.documentsSelected')}
             </span>
           </div>
           <button
@@ -527,7 +529,7 @@ export const DocumentManagementPage: React.FC = () => {
             className="flex items-center space-x-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
           >
             <Trash2 className="h-4 w-4" />
-            <span className="text-sm font-medium">Eliminar Seleccionados</span>
+            <span className="text-sm font-medium">{t('admin.deleteSelected')}</span>
           </button>
         </div>
       )}
@@ -546,13 +548,13 @@ export const DocumentManagementPage: React.FC = () => {
                     className="w-4 h-4 text-[#64c7cd] border-gray-300 rounded focus:ring-[#64c7cd] cursor-pointer"
                   />
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Documento</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Tipo</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Estado</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Subido por</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Fecha</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Datos Extraídos</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Acciones</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.document')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.type')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('common.status')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.uploadedBy')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('common.date')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.extractedData')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
@@ -561,8 +563,8 @@ export const DocumentManagementPage: React.FC = () => {
                   <td colSpan={8} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center justify-center">
                       <FileText className="h-12 w-12 text-gray-400 mb-4" />
-                      <p className="text-lg font-medium text-black mb-1">No hay documentos</p>
-                      <p className="text-sm text-black/60">No se encontraron documentos con los filtros aplicados</p>
+                      <p className="text-lg font-medium text-black mb-1">{t('admin.noDocuments')}</p>
+                      <p className="text-sm text-black/60">{t('admin.noDocumentsFound')}</p>
                     </div>
                   </td>
                 </tr>
@@ -654,8 +656,8 @@ export const DocumentManagementPage: React.FC = () => {
             <div className="p-12 text-center">
               <div className="flex flex-col items-center justify-center">
                 <FileText className="h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-lg font-medium text-black mb-1">No hay documentos</p>
-                <p className="text-sm text-black/60">No se encontraron documentos con los filtros aplicados</p>
+                <p className="text-lg font-medium text-black mb-1">{t('admin.noDocuments')}</p>
+                <p className="text-sm text-black/60">{t('admin.noDocumentsFound')}</p>
               </div>
             </div>
           ) : (
@@ -695,20 +697,20 @@ export const DocumentManagementPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <p className="text-black/60 mb-1">Tipo</p>
+                  <p className="text-black/60 mb-1">{t('admin.type')}</p>
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(doc.documentType)}`}>
                     {doc.documentType}
                   </span>
                 </div>
                 <div>
-                  <p className="text-black/60 mb-1">Estado</p>
+                  <p className="text-black/60 mb-1">{t('common.status')}</p>
                   <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(doc.status)}`}>
                     {getStatusIcon(doc.status)}
                     <span className="ml-1">{doc.status}</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-black/60 mb-1">Subido por</p>
+                  <p className="text-black/60 mb-1">{t('admin.uploadedBy')}</p>
                   <div className="flex items-center space-x-2">
                     <div className="w-6 h-6 bg-[#64c7cd] rounded-full flex items-center justify-center">
                       <User className="h-3 w-3 text-white" />
@@ -717,12 +719,12 @@ export const DocumentManagementPage: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-black/60 mb-1">Fecha</p>
+                  <p className="text-black/60 mb-1">{t('common.date')}</p>
                   <p className="text-black">{new Date(doc.uploadDate).toLocaleDateString('es-MX')}</p>
                   <p className="text-black/60">{new Date(doc.uploadDate).toLocaleTimeString('es-MX')}</p>
                 </div>
                 <div>
-                  <p className="text-black/60 mb-1">RFC</p>
+                  <p className="text-black/60 mb-1">{t('admin.rfc')}</p>
                   <div className="flex items-center space-x-2">
                     <Shield className="h-3 w-3 text-[#64c7cd]" />
                     <span className="text-black">{doc.extractedData.rfc}</span>
@@ -751,7 +753,7 @@ export const DocumentManagementPage: React.FC = () => {
       {totalDocuments > pageSize && (
         <div className="flex items-center justify-between mt-6 bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-4">
           <div className="text-sm text-black">
-            Mostrando {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, totalDocuments)} de {totalDocuments} documentos
+            {t('admin.showing')} {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, totalDocuments)} {t('admin.of')} {totalDocuments} {t('admin.documents')}
           </div>
           <div className="flex items-center space-x-2">
             <button
@@ -764,7 +766,7 @@ export const DocumentManagementPage: React.FC = () => {
               }`}
             >
               <ChevronLeft className="h-4 w-4" />
-              <span>Anterior</span>
+              <span>{t('admin.previous')}</span>
             </button>
             <div className="flex items-center space-x-1">
               {Array.from({ length: Math.min(5, Math.ceil(totalDocuments / pageSize)) }, (_, i) => {
@@ -805,7 +807,7 @@ export const DocumentManagementPage: React.FC = () => {
                   : 'bg-[#64c7cd] text-white hover:bg-[#64c7cd]/80 hover:scale-105'
               }`}
             >
-              <span>Siguiente</span>
+              <span>{t('admin.next')}</span>
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
@@ -839,23 +841,23 @@ export const DocumentManagementPage: React.FC = () => {
                 <div className="p-2 bg-[#eb3089] rounded-xl">
                   <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 text-black" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-black">Confirmar Eliminación</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-black">{t('admin.confirmDeletionTitle')}</h3>
               </div>
-              <p className="text-xs sm:text-sm text-black">Esta acción no se puede deshacer</p>
+              <p className="text-xs sm:text-sm text-black">{t('admin.actionCannotBeUndone')}</p>
             </div>
 
             <div className="space-y-3 sm:space-y-4">
               <div className="p-4 bg-[#eb3089]/10 border border-[#eb3089]/40 rounded-xl shadow-sm">
                 <p className="text-sm text-black mb-2">
-                  {selectedDocuments.length === 1 
-                    ? `¿Estás seguro de que quieres eliminar este documento?`
-                    : `¿Estás seguro de que quieres eliminar ${selectedDocuments.length} documentos?`
+                  {selectedDocuments.length === 1
+                    ? t('admin.sureToDeleteDocument')
+                    : `${t('admin.sureToDeleteDocuments')} ${selectedDocuments.length} ${t('admin.documentsQuestion')}`
                   }
                 </p>
                 <p className="text-xs text-black">
                   {selectedDocuments.length === 1
-                    ? 'Se eliminará permanentemente del sistema, incluyendo todos los datos asociados.'
-                    : 'Se eliminarán permanentemente del sistema, incluyendo todos los datos asociados.'
+                    ? t('admin.willBeDeletedPermanently')
+                    : t('admin.willBeDeletedPermanentlyPlural')
                   }
                 </p>
               </div>
@@ -869,7 +871,7 @@ export const DocumentManagementPage: React.FC = () => {
                     <div>
                       <p className="text-sm font-medium text-black">{selectedDocument.fileName}</p>
                       <p className="text-xs text-black">{selectedDocument.documentType} • {selectedDocument.fileSize}</p>
-                      <p className="text-xs text-black">Subido por: {selectedDocument.uploader}</p>
+                      <p className="text-xs text-black">{t('admin.uploadedByLabel')} {selectedDocument.uploader}</p>
                     </div>
                   </div>
                 </div>
@@ -885,22 +887,22 @@ export const DocumentManagementPage: React.FC = () => {
                 disabled={isDeleting}
                 className="px-4 sm:px-6 py-2 text-sm font-medium text-black bg-white border border-[#64c7cd]/40 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-sm order-2 sm:order-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Cancelar
+                {t('common.cancel')}
               </button>
               <button
                 onClick={confirmDeleteDocument}
                 disabled={isDeleting}
                 className={`px-4 sm:px-6 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg order-1 sm:order-2 ${
-                  isDeleting 
-                    ? 'bg-[#eb3089]/50 cursor-not-allowed' 
+                  isDeleting
+                    ? 'bg-[#eb3089]/50 cursor-not-allowed'
                     : 'bg-[#eb3089] hover:bg-[#eb3089]/80'
                 }`}
               >
-                {isDeleting 
-                  ? 'Eliminando...' 
-                  : selectedDocuments.length === 1 
-                    ? 'Eliminar Documento' 
-                    : `Eliminar ${selectedDocuments.length} Documentos`
+                {isDeleting
+                  ? t('admin.deleting')
+                  : selectedDocuments.length === 1
+                    ? t('admin.deleteDocument')
+                    : `${t('common.delete')} ${selectedDocuments.length} ${t('admin.deleteDocuments')}`
                 }
               </button>
             </div>
@@ -945,7 +947,7 @@ export const DocumentManagementPage: React.FC = () => {
                 <div>
                   <h3 className="text-lg sm:text-xl font-bold text-black">{selectedDocument.fileName}</h3>
                   <p className="text-xs sm:text-sm text-black">
-                    {selectedDocument.documentType} • {selectedDocument.fileSize} • Subido por {selectedDocument.uploader}
+                    {selectedDocument.documentType} • {selectedDocument.fileSize} • {t('admin.uploadedBy')} {selectedDocument.uploader}
                   </p>
                 </div>
               </div>
@@ -957,7 +959,7 @@ export const DocumentManagementPage: React.FC = () => {
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center space-y-4">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto"></div>
-                    <p className="text-black">Cargando PDF...</p>
+                    <p className="text-black">{t('admin.loadingPDF')}</p>
                   </div>
                 </div>
               ) : pdfError ? (
@@ -969,7 +971,7 @@ export const DocumentManagementPage: React.FC = () => {
                       onClick={() => selectedDocument && handleViewDocument(selectedDocument)}
                       className="px-4 py-2 text-sm font-medium text-white bg-[#64c7cd] rounded-xl hover:bg-[#64c7cd]/80 transition-all duration-300"
                     >
-                      Reintentar
+                      {t('admin.retry')}
                     </button>
                   </div>
                 </div>
@@ -984,7 +986,7 @@ export const DocumentManagementPage: React.FC = () => {
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center">
                     <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-black mb-2">No se pudo cargar el PDF</p>
+                    <p className="text-black mb-2">{t('admin.couldNotLoadPDF')}</p>
                   </div>
                 </div>
               )}

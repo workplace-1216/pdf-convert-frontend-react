@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Building, ArrowLeft, CheckCircle, AlertCircle, Mail, FileText, Eye, EyeOff, XCircle, MessageCircle } from 'lucide-react'
 import { API_URL } from '../config/api.config'
 import { OTPVerification } from '../components/OTPVerification'
 import { companyApi } from '../services/api'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 
 export const CompanyRegistrationPage: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: '',
@@ -41,14 +44,14 @@ export const CompanyRegistrationPage: React.FC = () => {
 
     // Validate required fields
     if (!formData.name || !formData.rfc || !formData.email || !formData.whatsappNumber || !formData.password || !formData.confirmPassword) {
-      setError('Por favor complete todos los campos requeridos')
+      setError(t('errors.validationError'))
       setLoading(false)
       return
     }
 
     // Validate RFC format
     if (formData.rfc.length !== 13) {
-      setError('El RFC debe tener 13 caracteres')
+      setError(t('auth.invalidRFC'))
       setLoading(false)
       return
     }
@@ -56,21 +59,21 @@ export const CompanyRegistrationPage: React.FC = () => {
     // Validate email format
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailPattern.test(formData.email)) {
-      setError('Email inválido')
+      setError(t('auth.invalidCredentials'))
       setLoading(false)
       return
     }
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden')
+      setError(t('auth.passwordMismatch'))
       setLoading(false)
       return
     }
 
     // Validate password length
     if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres')
+      setError(t('auth.passwordMismatch'))
       setLoading(false)
       return
     }
@@ -105,10 +108,10 @@ export const CompanyRegistrationPage: React.FC = () => {
           confirmPassword: ''
         })
       } else {
-        setError(data.message || 'Error al registrar la empresa')
+        setError(data.message || t('errors.createError'))
       }
     } catch (err: any) {
-      setError('Error de conexión. Por favor intente nuevamente.')
+      setError(t('errors.networkError'))
     } finally {
       setLoading(false)
     }
@@ -144,13 +147,16 @@ export const CompanyRegistrationPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         {/* Back Button */}
-        <button
-          onClick={() => navigate('/login')}
-          className="mb-10 flex items-center space-x-2 text-black hover:text-[#eb3089] transition-colors duration-200"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span className="font-medium">Volver al inicio</span>
-        </button>
+        <div className="mb-10 flex justify-between items-center">
+          <button
+            onClick={() => navigate('/login')}
+            className="flex items-center space-x-2 text-black hover:text-[#eb3089] transition-colors duration-200"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span className="font-medium">{t('common.back')}</span>
+          </button>
+          <LanguageSwitcher />
+        </div>
 
         {/* Registration Card */}
         <div className="bg-white rounded-3xl shadow-2xl border border-[#64c7cd]/30 overflow-hidden">
@@ -161,8 +167,8 @@ export const CompanyRegistrationPage: React.FC = () => {
                 <Building className="h-8 w-8" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Registro de Empresa</h1>
-                <p className="text-white/90 text-sm mt-1">Complete los datos de su empresa</p>
+                <h1 className="text-3xl font-bold">{t('company.registerCompany')}</h1>
+                <p className="text-white/90 text-sm mt-1">{t('company.selectCompaniesSubtitle')}</p>
               </div>
             </div>
           </div>
@@ -172,7 +178,7 @@ export const CompanyRegistrationPage: React.FC = () => {
             <div className="mx-8 mt-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start space-x-3">
               <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
               <div>
-                <h3 className="text-red-800 font-semibold">Error</h3>
+                <h3 className="text-red-800 font-semibold">{t('common.error')}</h3>
                 <p className="text-red-700 text-sm mt-1">{error}</p>
               </div>
             </div>
@@ -185,7 +191,7 @@ export const CompanyRegistrationPage: React.FC = () => {
               {/* Company Name */}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">
-                  Nombre de la Empresa *
+                  {t('company.companyName')} *
                 </label>
                 <div className="relative">
                   <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -194,7 +200,7 @@ export const CompanyRegistrationPage: React.FC = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="Ej: Acme Corporation"
+                    placeholder={t('company.companyName')}
                     required
                     className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#64c7cd] focus:border-transparent transition-all duration-300"
                   />
@@ -204,7 +210,7 @@ export const CompanyRegistrationPage: React.FC = () => {
               {/* RFC */}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">
-                  RFC *
+                  {t('auth.rfc')} *
                 </label>
                 <div className="relative">
                   <FileText className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -229,21 +235,21 @@ export const CompanyRegistrationPage: React.FC = () => {
                           if (/^[A-Z]$/.test(char)) {
                             isValid = true
                           } else {
-                            errorMsg = `Posición ${i + 1}: Solo letras (A-Z)`
+                            errorMsg = `${t('company.positionLetters')} ${i + 1}: ${t('company.onlyLetters')}`
                           }
                         } else if (i < 10) {
                           // Next 6 must be numbers
                           if (/^[0-9]$/.test(char)) {
                             isValid = true
                           } else {
-                            errorMsg = `Posición ${i + 1}: Solo números (0-9)`
+                            errorMsg = `${t('company.positionLetters')} ${i + 1}: ${t('company.onlyNumbers')}`
                           }
                         } else {
                           // Last 3 can be letters or numbers
                           if (/^[A-Z0-9]$/.test(char)) {
                             isValid = true
                           } else {
-                            errorMsg = `Posición ${i + 1}: Letras o números`
+                            errorMsg = `${t('company.positionLetters')} ${i + 1}: ${t('company.lettersOrNumbers')}`
                           }
                         }
 
@@ -259,7 +265,7 @@ export const CompanyRegistrationPage: React.FC = () => {
                       setRfcError(errorMsg)
                       setFormData(prev => ({ ...prev, rfc: validValue }))
                     }}
-                    placeholder="Ej: XAXX010101000"
+                    placeholder={t('company.rfcPlaceholder')}
                     maxLength={13}
                     required
                     className={`w-full pl-12 pr-4 py-3 bg-white border-2 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-300 uppercase ${formData.rfc && /^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$/.test(formData.rfc)
@@ -287,13 +293,13 @@ export const CompanyRegistrationPage: React.FC = () => {
                 {formData.rfc.length > 0 && formData.rfc.length < 13 && !rfcError && (
                   <div className="mt-2 text-xs text-blue-600">
                     {formData.rfc.length < 4 && (
-                      <span>✏️ Ingresa {4 - formData.rfc.length} letra(s) más</span>
+                      <span>✏️ {t('company.enterMoreLetters')} {4 - formData.rfc.length} {t('company.moreLetters')}</span>
                     )}
                     {formData.rfc.length >= 4 && formData.rfc.length < 10 && (
-                      <span>🔢 Ingresa {10 - formData.rfc.length} número(s) más</span>
+                      <span>🔢 {t('company.enterMoreLetters')} {10 - formData.rfc.length} {t('company.enterMoreNumbers')}</span>
                     )}
                     {formData.rfc.length >= 10 && formData.rfc.length < 13 && (
-                      <span>📝 Ingresa {13 - formData.rfc.length} carácter(es) más (letra o número)</span>
+                      <span>📝 {t('company.enterMoreLetters')} {13 - formData.rfc.length} {t('company.enterMoreCharacters')}</span>
                     )}
                   </div>
                 )}
@@ -301,7 +307,7 @@ export const CompanyRegistrationPage: React.FC = () => {
                 {formData.rfc && /^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$/.test(formData.rfc) && (
                   <div className="mt-2 flex items-center space-x-2 text-green-600">
                     <CheckCircle className="h-4 w-4" />
-                    <p className="text-sm">RFC válido ✓</p>
+                    <p className="text-sm">{t('company.rfcValid')}</p>
                   </div>
                 )}
               </div>
@@ -312,7 +318,7 @@ export const CompanyRegistrationPage: React.FC = () => {
               {/* Email */}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">
-                  Email de Contacto *
+                  {t('company.contactEmail')} *
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -321,7 +327,7 @@ export const CompanyRegistrationPage: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="contacto@empresa.com"
+                    placeholder={t('company.emailPlaceholder')}
                     required
                     className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#64c7cd] focus:border-transparent transition-all duration-300"
                   />
@@ -331,7 +337,7 @@ export const CompanyRegistrationPage: React.FC = () => {
               {/* WhatsApp Number */}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">
-                  WhatsApp *
+                  {t('auth.whatsapp')} *
                 </label>
                 <div className="relative">
                   <MessageCircle className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#25D366] z-10" />
@@ -350,8 +356,8 @@ export const CompanyRegistrationPage: React.FC = () => {
                     dropdownClass="!bg-white !border-2 !border-gray-200 !rounded-xl"
                     searchClass="!bg-white !border-gray-200 !rounded-lg"
                     enableSearch
-                    searchPlaceholder="Buscar país"
-                    placeholder="Número con código de país"
+                    searchPlaceholder={t('company.searchCountry')}
+                    placeholder={t('company.phoneWithCode')}
                     countryCodeEditable={true}
                   />
                 </div>
@@ -365,7 +371,7 @@ export const CompanyRegistrationPage: React.FC = () => {
               {/* Password */}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">
-                  Contraseña *
+                  {t('company.password')} *
                 </label>
                 <div className="relative">
                   <input
@@ -389,13 +395,13 @@ export const CompanyRegistrationPage: React.FC = () => {
                     )}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Mínimo 6 caracteres</p>
+                <p className="text-xs text-gray-500 mt-1">{t('company.minimumCharacters')}</p>
               </div>
 
               {/* Confirm Password */}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">
-                  Confirmar Contraseña *
+                  {t('company.confirmPassword')} *
                 </label>
                 <div className="relative">
                   <input
@@ -427,13 +433,13 @@ export const CompanyRegistrationPage: React.FC = () => {
                 {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                   <div className="mt-2 flex items-center space-x-2 text-red-600">
                     <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <p className="text-sm">Las contraseñas no coinciden</p>
+                    <p className="text-sm">{t('company.passwordsDoNotMatch')}</p>
                   </div>
                 )}
                 {formData.confirmPassword && formData.password === formData.confirmPassword && (
                   <div className="mt-2 flex items-center space-x-2 text-green-600">
                     <CheckCircle className="h-4 w-4" />
-                    <p className="text-sm">Las contraseñas coinciden</p>
+                    <p className="text-sm">{t('company.passwordsMatch')}</p>
                   </div>
                 )}
               </div>
@@ -451,12 +457,12 @@ export const CompanyRegistrationPage: React.FC = () => {
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                      <span>Registrando...</span>
+                      <span>{t('company.registering')}</span>
                     </>
                   ) : (
                     <>
                       <Building className="h-5 w-5" />
-                      <span>Registrar Empresa</span>
+                      <span>{t('company.registerCompanyButton')}</span>
                     </>
                   )}
                 </div>
@@ -470,7 +476,7 @@ export const CompanyRegistrationPage: React.FC = () => {
                 onClick={() => navigate('/login')}
                 className="text-sm text-gray-600 hover:text-[#eb3089] transition-colors duration-200 font-medium underline"
               >
-                ¿Ya tiene cuenta?<br className="sm:hidden" /> Inicie sesión
+                {t('company.alreadyHaveAccount')}
               </button>
             </div>
           </form>
@@ -478,8 +484,8 @@ export const CompanyRegistrationPage: React.FC = () => {
 
         {/* Footer Info */}
         <div className="text-center mt-6 text-sm text-gray-600">
-          <p>Al registrarse, su empresa será revisada por nuestro equipo administrativo.</p>
-          <p className="mt-1">Recibirá una notificación cuando su cuenta sea aprobada.</p>
+          <p>{t('company.reviewMessage')}</p>
+          <p className="mt-1">{t('company.notificationMessage')}</p>
         </div>
       </div>
 
@@ -510,26 +516,26 @@ export const CompanyRegistrationPage: React.FC = () => {
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
 
-              <h3 className="text-xl font-bold text-black mb-2">¡Registro Exitoso!</h3>
+              <h3 className="text-xl font-bold text-black mb-2">{t('company.registrationSuccessTitle')}</h3>
 
               <div className="mb-6 text-sm text-black/70">
                 <p className="mb-3">
-                  Su empresa ha sido registrada exitosamente.
+                  {t('company.registrationSuccessMessage')}
                 </p>
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-left">
-                  <p className="font-semibold text-blue-900 mb-2">Próximos pasos:</p>
+                  <p className="font-semibold text-blue-900 mb-2">{t('company.nextSteps')}</p>
                   <ul className="space-y-2 text-blue-800">
                     <li className="flex items-start space-x-2">
                       <span className="text-blue-600 mt-0.5">•</span>
-                      <span>Un administrador revisará su solicitud</span>
+                      <span>{t('company.adminReview')}</span>
                     </li>
                     <li className="flex items-start space-x-2">
                       <span className="text-blue-600 mt-0.5">•</span>
-                      <span>Recibirá una notificación cuando sea aprobada</span>
+                      <span>{t('company.receiveNotification')}</span>
                     </li>
                     <li className="flex items-start space-x-2">
                       <span className="text-blue-600 mt-0.5">•</span>
-                      <span>Podrá iniciar sesión con sus credenciales</span>
+                      <span>{t('company.canLogin')}</span>
                     </li>
                   </ul>
                 </div>
@@ -542,7 +548,7 @@ export const CompanyRegistrationPage: React.FC = () => {
                 }}
                 className="w-full px-6 py-3 bg-[#eb3089] text-white font-semibold rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 shadow-lg"
               >
-                Ir al Inicio de Sesión
+                {t('company.goToLogin')}
               </button>
             </div>
           </div>

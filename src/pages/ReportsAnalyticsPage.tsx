@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Download,
   FileText,
@@ -34,6 +35,7 @@ import { DashboardSkeleton } from '../components/Skeleton'
 const TYPE_COLORS: string[] = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4']
 
 export const ReportsAnalyticsPage: React.FC = () => {
+  const { t } = useTranslation()
   const [selectedPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d')
   const [data, setData] = useState<ReportsAnalyticsResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -47,7 +49,7 @@ export const ReportsAnalyticsPage: React.FC = () => {
       setData(res)
     } catch (err) {
       console.error('Error fetching analytics:', err)
-      setError('No se pudieron cargar los reportes.')
+      setError(t('admin.couldNotLoadReports'))
     } finally {
       setLoading(false)
     }
@@ -140,16 +142,16 @@ export const ReportsAnalyticsPage: React.FC = () => {
       {/* Header Actions */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-black">Reportes y Analytics</h2>
-          <p className="text-sm text-black">Análisis detallado del rendimiento del sistema</p>
+          <h2 className="text-2xl font-bold text-black">{t('admin.reportsAndAnalyticsTitle')}</h2>
+          <p className="text-sm text-black">{t('admin.detailedSystemAnalysis')}</p>
         </div>
         <div className="flex items-center space-x-3">
-          <button 
+          <button
             onClick={handleExportReports}
             className="flex items-center px-4 py-2 text-sm font-medium text-white bg-[#64c7cd] border border-[#64c7cd]/50 rounded-lg hover:bg-[#64c7cd]/80 transition-all duration-300 hover:scale-105"
           >
             <Download className="h-4 w-4 mr-2" />
-            <span>Exportar</span>
+            <span>{t('admin.export')}</span>
           </button>
         </div>
       </div>
@@ -168,9 +170,9 @@ export const ReportsAnalyticsPage: React.FC = () => {
               </div>
             </div>
             <div>
-              <p className="text-sm text-black font-medium mb-1">Total Documentos</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.totalDocuments')}</p>
               <p className="text-2xl font-bold text-black">{data?.stats.totalDocuments.toLocaleString()}</p>
-              <p className="text-xs text-black mt-2">+{data?.stats.processedToday} hoy</p>
+              <p className="text-xs text-black mt-2">+{data?.stats.processedToday} {t('admin.today')}</p>
             </div>
           </div>
         </div>
@@ -187,9 +189,9 @@ export const ReportsAnalyticsPage: React.FC = () => {
               </div>
             </div>
             <div>
-              <p className="text-sm text-black font-medium mb-1">Tasa de Éxito</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.successRate')}</p>
               <p className="text-2xl font-bold text-black">{data?.stats.successRate}%</p>
-              <p className="text-xs text-black mt-2">Excelente rendimiento</p>
+              <p className="text-xs text-black mt-2">{t('admin.excellentPerformance')}</p>
             </div>
           </div>
         </div>
@@ -206,9 +208,9 @@ export const ReportsAnalyticsPage: React.FC = () => {
               </div>
             </div>
             <div>
-              <p className="text-sm text-black font-medium mb-1">Tiempo Promedio</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.averageTime')}</p>
               <p className="text-2xl font-bold text-black">{data?.stats.averageProcessingTime}</p>
-              <p className="text-xs text-black mt-2">Mejorando eficiencia</p>
+              <p className="text-xs text-black mt-2">{t('admin.improvingEfficiency')}</p>
             </div>
           </div>
         </div>
@@ -225,9 +227,9 @@ export const ReportsAnalyticsPage: React.FC = () => {
               </div>
             </div>
             <div>
-              <p className="text-sm text-black font-medium mb-1">Usuarios Activos</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.activeUsers')}</p>
               <p className="text-2xl font-bold text-black">{data?.stats.activeUsers}</p>
-              <p className="text-xs text-black mt-2">de {data?.stats.totalUsers} total</p>
+              <p className="text-xs text-black mt-2">{t('admin.of')} {data?.stats.totalUsers} {t('admin.total')}</p>
             </div>
           </div>
         </div>
@@ -239,25 +241,25 @@ export const ReportsAnalyticsPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-black">Tendencias Mensuales</h3>
-              <p className="text-sm text-black">Documentos, procesados, enviados y errores</p>
+              <h3 className="text-lg font-bold text-black">{t('admin.monthlyTrends')}</h3>
+              <p className="text-sm text-black">{t('admin.documentsProcessedAndSent')}</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                <span className="text-xs text-black">Documentos</span>
+                <span className="text-xs text-black">{t('admin.documentsLabel')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-xs text-black">Procesados</span>
+                <span className="text-xs text-black">{t('admin.processed')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-orange-400 rounded-full"></div>
-                <span className="text-xs text-black">Enviados</span>
+                <span className="text-xs text-black">{t('admin.sent')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                <span className="text-xs text-black">Errores</span>
+                <span className="text-xs text-black">{t('admin.errors')}</span>
               </div>
             </div>
           </div>
@@ -277,10 +279,10 @@ export const ReportsAnalyticsPage: React.FC = () => {
                 }} 
               />
               <Legend />
-              <Line type="monotone" dataKey="documents" stroke="#64c7cd" strokeWidth={2} name="Documentos" />
-              <Line type="monotone" dataKey="processed" stroke="#a5cc55" strokeWidth={2} name="Procesados" />
-              <Line type="monotone" dataKey="sent" stroke="#f97316" strokeWidth={2} name="Enviados" />
-              <Line type="monotone" dataKey="errors" stroke="#eb3089" strokeWidth={2} name="Errores" />
+              <Line type="monotone" dataKey="documents" stroke="#64c7cd" strokeWidth={2} name={t('admin.documentsLabel')} />
+              <Line type="monotone" dataKey="processed" stroke="#a5cc55" strokeWidth={2} name={t('admin.processed')} />
+              <Line type="monotone" dataKey="sent" stroke="#f97316" strokeWidth={2} name={t('admin.sent')} />
+              <Line type="monotone" dataKey="errors" stroke="#eb3089" strokeWidth={2} name={t('admin.errors')} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -289,12 +291,12 @@ export const ReportsAnalyticsPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-black">Actividad de Usuarios</h3>
-              <p className="text-sm text-black">Últimas 24 horas</p>
+              <h3 className="text-lg font-bold text-black">{t('admin.userActivityReport')}</h3>
+              <p className="text-sm text-black">{t('admin.last24Hours')}</p>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-[#a5cc55] rounded-full animate-pulse"></div>
-              <span className="text-xs text-black">En tiempo real</span>
+              <span className="text-xs text-black">{t('admin.realTime')}</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={300}>
@@ -325,8 +327,8 @@ export const ReportsAnalyticsPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-black">Tipos de Documentos</h3>
-              <p className="text-sm text-black">Distribución actual</p>
+              <h3 className="text-lg font-bold text-black">{t('admin.documentTypes')}</h3>
+              <p className="text-sm text-black">{t('admin.currentDistribution')}</p>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={250}>
@@ -363,8 +365,8 @@ export const ReportsAnalyticsPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-black">Tiempo de Procesamiento</h3>
-              <p className="text-sm text-black">Distribución por rangos</p>
+              <h3 className="text-lg font-bold text-black">{t('admin.processingTimeDistribution')}</h3>
+              <p className="text-sm text-black">{t('admin.distributionByRanges')}</p>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={250}>

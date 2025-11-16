@@ -18,10 +18,12 @@ import {
   Building
 } from 'lucide-react'
 import JSZip from 'jszip'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { documentApi } from '../services/api'
 import { API_URL } from '../config/api.config'
 import { Skeleton } from '../components/Skeleton'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 
 // Types
 interface ReadyDocument {
@@ -54,6 +56,8 @@ const FolderCard: React.FC<{
   onSelect: (folderId: string, selected: boolean) => void
   isSelected: boolean
 }> = ({ folder, onFolderClick, onSelect, isSelected }) => {
+  const { t } = useTranslation()
+
   return (
     <div
       className={`relative bg-white rounded-2xl shadow-xl border border-[#64c7cd]/40 p-3 sm:p-4 md:p-6 hover:shadow-2xl hover:scale-[102%] transition-all duration-300 group ${isSelected ? 'ring-2 ring-[#eb3089]' : ''
@@ -195,7 +199,7 @@ const FolderCard: React.FC<{
           {folder.folderName}
         </h3>
         <p className="text-[10px] sm:text-xs text-slate-500">
-          {folder.documentCount} {folder.documentCount === 1 ? 'documento' : 'documentos'}
+          {folder.documentCount} {folder.documentCount === 1 ? t('nav.documents').slice(0, -1) : t('nav.documents')}
         </p>
       </div>
 
@@ -209,6 +213,7 @@ const FolderCard: React.FC<{
 
 // Main Component - Compliance Verification Dashboard
 export const ClientReadyDocumentsPage: React.FC = () => {
+  const { t } = useTranslation()
   const { user, logout } = useAuth()
   const [readyDocs, setReadyDocs] = useState<ReadyDocument[]>([])
   const [pagination, setPagination] = useState({
@@ -259,7 +264,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
   const getDisplayValue = (value: string, type: string) => {
 
     if (!value || value === "N/A" || value === "0") {
-      return "No extraído"
+      return t('documents.noDocuments')
     }
 
     // Check if it's a regex pattern (contains [\s:]* or similar regex syntax)
@@ -282,7 +287,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
 
     if (isRegexPattern) {
       // This is a regex pattern, show a placeholder indicating extraction is needed
-      return "Re-procesar"
+      return t('documents.processing')
     }
 
     // Return the actual extracted value
@@ -329,7 +334,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       setPdfUrl(url)
     } catch (error) {
       console.error('Error loading PDF:', error)
-      setPdfError('No se pudo cargar el PDF. Por favor, intente descargarlo.')
+      setPdfError(t('errors.uploadError'))
     } finally {
       setPdfLoading(false)
     }
@@ -349,7 +354,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
     try {
       const token = localStorage.getItem('token')
       if (!token) {
-        showFeedback('error', 'Error de Autenticación', 'No hay token de autenticación')
+        showFeedback('error', t('errors.unauthorized'), t('errors.unauthorized'))
         return
       }
 
@@ -363,7 +368,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       if (!response.ok) {
         const errorText = await response.text()
         console.error('Download error:', errorText)
-        showFeedback('error', 'Error de Descarga', `Error al descargar: ${response.status} - ${errorText}`)
+        showFeedback('error', t('errors.uploadError'), t('errors.uploadError'))
         return
       }
 
@@ -404,7 +409,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
 
     } catch (error) {
       console.error('Download failed:', error)
-      showFeedback('error', 'Error de Descarga', 'Error al descargar el documento')
+      showFeedback('error', t('errors.uploadError'), t('errors.uploadError'))
     }
   }
 
@@ -752,7 +757,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       setShowCompanyModal(true)
     } catch (error) {
       console.error('Error fetching companies:', error)
-      showFeedback('error', 'Error', 'Error al obtener la lista de empresas')
+      showFeedback('error', t('common.error'), t('errors.somethingWentWrong'))
     }
   }
 
@@ -787,7 +792,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       })
 
       if (documentIds.length === 0) {
-        showFeedback('error', 'Error', 'No se encontraron documentos para enviar')
+        showFeedback('error', t('common.error'), t('documents.noDocuments'))
         setSending(false)
         return
       }
@@ -831,7 +836,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
         } catch (err: any) {
           console.error(`[SendToCompany] Error for company ${companyId}:`, err.message)
           if (err.name === 'AbortError') {
-            showFeedback('error', 'Tiempo de Espera Agotado', 'La operación tardó demasiado tiempo. Por favor, intente con menos documentos.')
+            showFeedback('error', t('errors.somethingWentWrong'), t('errors.tryAgain'))
             setSending(false)
             return
           }
@@ -840,7 +845,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       }
       
       if (successCount === 0) {
-        showFeedback('error', 'Error de Envío', 'No se pudo enviar a ninguna empresa. Por favor intente nuevamente.')
+        showFeedback('error', t('errors.sendError'), t('errors.tryAgain'))
         setSending(false)
         return
       }
@@ -853,8 +858,8 @@ export const ClientReadyDocumentsPage: React.FC = () => {
         : `Se enviaron ${totalDocs} documento(s) de ${selectedFolderIds.length} carpeta(s) a ${companyNames} exitosamente`
 
       showFeedback(
-        failCount > 0 ? 'info' : 'success', 
-        failCount > 0 ? 'Envío Parcial' : 'Documentos Enviados', 
+        failCount > 0 ? 'info' : 'success',
+        failCount > 0 ? t('documents.uploadFailed') : t('documents.uploadSuccess'),
         statusMessage
       )
       
@@ -863,7 +868,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       setSelectedCompanyIds([])
     } catch (error: any) {
       console.error('Error sending documents:', error)
-      showFeedback('error', 'Error de Envío', error.message || 'Error al enviar los documentos. Por favor intente nuevamente.')
+      showFeedback('error', t('errors.sendError'), error.message || t('errors.tryAgain'))
     } finally {
       setSending(false)
     }
@@ -943,13 +948,13 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       
       await Promise.all(promises)
       
-      showFeedback('success', '¡Empresas Agregadas!', `${selectedNewCompanyIds.length} empresa(s) agregada(s) exitosamente`)
+      showFeedback('success', t('common.success'), t('company.registrationSuccess'))
       setShowAddCompanyModal(false)
       setSelectedNewCompanyIds([])
       fetchMyCompanies() // Refresh list
     } catch (error) {
       console.error('Error adding companies:', error)
-      showFeedback('error', 'Error', 'Error al agregar empresas')
+      showFeedback('error', t('common.error'), t('errors.createError'))
     }
   }
 
@@ -980,7 +985,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error removing company:', error)
-      showFeedback('error', 'Error', 'Error al eliminar empresa')
+      showFeedback('error', t('common.error'), t('errors.deleteError'))
     }
   }
 
@@ -1069,10 +1074,10 @@ export const ClientReadyDocumentsPage: React.FC = () => {
         const ts = new Date()
         const dateStr = `${ts.getFullYear()}${String(ts.getMonth() + 1).padStart(2, '0')}${String(ts.getDate()).padStart(2, '0')}_${String(ts.getHours()).padStart(2, '0')}${String(ts.getMinutes()).padStart(2, '0')}${String(ts.getSeconds()).padStart(2, '0')}`
         await triggerDownload(`carpeta_${dateStr}.zip`, zipBlob)
-        showFeedback('success', 'Descarga iniciada', `Se descargará un ZIP con ${documentIds.length} documento(s) en la carpeta "${folderName}".`)
+        showFeedback('success', t('common.success'), `${t('documents.download')}: ${documentIds.length} ${t('documents.fileName')}(s)`)
       } catch (error) {
         console.error('Error downloading folder:', error)
-        showFeedback('error', 'Error de Descarga', 'No se pudo descargar la carpeta actual.')
+        showFeedback('error', t('common.error'), t('errors.somethingWentWrong'))
       } finally {
         setDownloading(false)
       }
@@ -1140,10 +1145,10 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       const ts = new Date()
       const dateStr = `${ts.getFullYear()}${String(ts.getMonth() + 1).padStart(2, '0')}${String(ts.getDate()).padStart(2, '0')}_${String(ts.getHours()).padStart(2, '0')}${String(ts.getMinutes()).padStart(2, '0')}${String(ts.getSeconds()).padStart(2, '0')}`
       await triggerDownload(`carpetas_${dateStr}.zip`, zipBlob)
-      showFeedback('success', 'Descarga iniciada', `Se descargará un ZIP con ${totalDocs} documento(s) en ${selectedFolderIds.length} carpeta(s) separada(s).`)
+      showFeedback('success', t('common.success'), `${t('documents.download')}: ${totalDocs} ${t('documents.fileName')}(s)`)
     } catch (error) {
       console.error('Merged batch download failed:', error)
-      showFeedback('error', 'Error de Descarga', 'No fue posible descargar las carpetas seleccionadas.')
+      showFeedback('error', t('common.error'), t('errors.somethingWentWrong'))
     } finally {
       setDownloading(false)
     }
@@ -1180,11 +1185,11 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       setSelectedFolderIds([])
       setPendingDeleteFolderIds([])
       setShowDeleteConfirm(false)
-      showFeedback('success', 'Eliminación completada', 'Las carpetas y sus documentos asociados fueron eliminados.')
+      showFeedback('success', t('common.success'), t('documents.uploadSuccess'))
     } catch (error: any) {
       console.error('Error deleting documents:', error)
       const message = error?.response?.data || 'No se pudieron eliminar las carpetas seleccionadas.'
-      showFeedback('error', 'Error al eliminar', typeof message === 'string' ? message : 'Error inesperado al eliminar.')
+      showFeedback('error', t('common.error'), typeof message === 'string' ? message : t('errors.deleteError'))
     } finally {
       setDeleting(false)
     }
@@ -1212,14 +1217,13 @@ export const ClientReadyDocumentsPage: React.FC = () => {
           return `${f.name} (${sizeKB}KB)`
         }).join(', ')
         
-        showFeedback('error', 'Archivo(s) Demasiado Grande(s)', 
-          `El tamaño máximo permitido es 500KB. Archivos rechazados: ${fileList}`)
+        showFeedback('error', t('common.error'), t('documents.uploadFailed'))
       }
       
       if (validFiles.length > 0) {
         setSelectedFiles(prev => [...prev, ...validFiles])
       } else if (pdfFiles.length === 0) {
-        showFeedback('error', 'Archivo Inválido', 'Por favor selecciona archivos PDF válidos')
+        showFeedback('error', t('common.error'), t('documents.uploadFailed'))
       }
     }
   }
@@ -1253,14 +1257,13 @@ export const ClientReadyDocumentsPage: React.FC = () => {
           return `${f.name} (${sizeKB}KB)`
         }).join(', ')
         
-        showFeedback('error', 'Archivo(s) Demasiado Grande(s)', 
-          `El tamaño máximo permitido es 500KB. Archivos rechazados: ${fileList}`)
+        showFeedback('error', t('common.error'), t('documents.uploadFailed'))
       }
       
       if (validFiles.length > 0) {
         setSelectedFiles(prev => [...prev, ...validFiles])
       } else if (pdfFiles.length === 0) {
-        showFeedback('error', 'Archivo Inválido', 'Por favor selecciona archivos PDF válidos')
+        showFeedback('error', t('common.error'), t('documents.uploadFailed'))
       }
     }
   }
@@ -1334,7 +1337,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
     return (
       <div className="text-center py-12">
         <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-        <h2 className="text-lg font-medium text-gray-900 mb-2">Error al cargar documentos</h2>
+        <h2 className="text-lg font-medium text-gray-900 mb-2">{t('errors.uploadError')}</h2>
         <p className="text-gray-600">{error}</p>
       </div>
     )
@@ -1364,23 +1367,25 @@ export const ClientReadyDocumentsPage: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-bold">
-                  Centro de Cumplimiento Fiscal
+                  {t('client.dashboard')}
                 </h1>
               </div>
             </div>
 
             {/* Right Side - Status & Actions */}
             <div className="flex items-center space-x-4">
+              {/* Language Switcher */}
+              <LanguageSwitcher />
 
               {/* Logout Button */}
               <button
                 onClick={logout}
                 className="flex items-center space-x-3 p-3 rounded-xl hover:bg-[#eb3089]/10 hover:border-[#eb3089]/30 border border-transparent transition-all duration-300 group"
               >
-                <div className="p-2 rounded-lg bg-[#eb3089]/10 group-hover:bg-[#eb3089]/20">
-                  <LogOut className="h-4 w-4 !text-rose-500" />
+                <div className="p-2 rounded-lg bg-rose-500 group-hover:bg-rose-600">
+                  <LogOut className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-sm font-medium !text-rose-500 hidden sm:inline">Cerrar Sesión</span>
+                <span className="text-sm font-medium !text-rose-500 hidden sm:inline">{t('nav.logout')}</span>
               </button>
             </div>
           </div>
@@ -1396,7 +1401,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
               <div className="w-full bg-white rounded-2xl shadow-xl hover:shadow-2xl border border-[#64c7cd]/30 p-2 sm:p-3 mb-3 sm:mb-6 relative overflow-auto group transition-all duration-500">
                 {/* Glassmorphism Effect */}
 
-                <div className="relative z-10 flex items-center justify-between flex flex-col">
+                <div className="relative z-10 flex items-center justify-between flex-col">
                   <div className="flex items-center space-x-4 mb-4">
                     <div className="relative">
                       <div className="p-3 bg-[#a5cc55] rounded-2xl shadow-2xl">
@@ -1404,8 +1409,8 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <h2 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">Subir PDF</h2>
-                      <p className="text-sm text-blue-200/80">Procesamiento automático con IA</p>
+                      <h2 className="text-lg sm:text-xl font-bold ">{t('documents.uploadTitle')}</h2>
+                      <p className="text-sm">{t('documents.dragAndDrop')}</p>
                     </div>
                   </div>
 
@@ -1447,16 +1452,16 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                       <div>
                         <p className="text-sm sm:text-base font-semibold text-black mb-1">
                           {selectedFiles.length > 0
-                            ? `${selectedFiles.length} archivo(s) seleccionado(s)`
-                            : 'Arrastra PDF aquí'}
+                            ? `${selectedFiles.length} ${t('client.filesSelected')}`
+                            : t('client.dragAndDrop')}
                         </p>
                         <p className="text-xs text-black/70">
                           {selectedFiles.length > 0
-                            ? 'Selecciona más archivos o sube'
-                            : 'o haz clic para seleccionar múltiples PDF'}
+                            ? t('documents.uploadButton')
+                            : t('documents.dragAndDrop')}
                         </p>
                         <p className="text-xs text-red-500 font-medium mt-1">
-                          Tamaño máximo: 5MB por archivo
+                          {t('client.maxFileSize')}: 5MB
                         </p>
                       </div>
                       {selectedFiles.length > 0 && (
@@ -1500,14 +1505,14 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                     {uploading ? (
                       <div className="flex items-center justify-center space-x-3">
                         <Skeleton variant="circular" width={20} height={20} />
-                        <span className="font-semibold">Procesando {selectedFiles.length} archivo(s)...</span>
+                        <span className="font-semibold">{t('documents.processing')} {selectedFiles.length}...</span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center">
                         <span className="font-semibold">
                           {selectedFiles.length > 0
-                            ? `Subir ${selectedFiles.length} Documento(s)`
-                            : 'Subir Documento(s)'
+                            ? `${t('common.upload')} ${selectedFiles.length}`
+                            : t('common.upload')
                           }
                         </span>
                       </div>
@@ -1535,7 +1540,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-black/70 uppercase tracking-wider">Procesados</p>
+                          <p className="text-xs font-semibold text-black/70 uppercase tracking-wider">{t('dashboard.processedDocuments')}</p>
                           <p className="text-xl sm:text-2xl font-bold text-black">{readyDocs.length}</p>
                         </div>
                       </div>
@@ -1555,7 +1560,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-black/70 uppercase tracking-wider">Enviados</p>
+                          <p className="text-xs font-semibold text-black/70 uppercase tracking-wider">{t('client.sent')}</p>
                           <p className="text-xl sm:text-2xl font-bold text-black">
                             {readyDocs.filter(doc => doc.isSentToAdmin || doc.isSentToCompany).length}
                           </p>
@@ -1577,7 +1582,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-black/70 uppercase tracking-wider">No Cumplidos</p>
+                          <p className="text-xs font-semibold text-black/70 uppercase tracking-wider">{t('dashboard.pendingDocuments')}</p>
                           <p className="text-xl sm:text-2xl font-bold text-black">
                             {readyDocs.filter(doc => doc.complianceStatus === 'NON_COMPLIANT').length}
                           </p>
@@ -1604,7 +1609,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-black/70 uppercase tracking-wider">Mis Empresas</p>
+                          <p className="text-xs font-semibold text-black/70 uppercase tracking-wider">{t('client.myCompanies')}</p>
                           <p className="text-xl sm:text-2xl font-bold text-black">{myCompanies.length}</p>
                         </div>
                       </div>
@@ -1630,9 +1635,9 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                       </div>
                       <div>
                         <h2 className="text-white sm:text-xl font-bold">
-                          Documentos Finalizados ({folders.length})
+                          {t('client.readyDocuments')} ({folders.length})
                         </h2>
-                        <p className="text-xs text-white">Verificación de cumplimiento</p>
+                        <p className="text-xs text-white">{t('common.status')}</p>
                       </div>
                     </div>
                   </div>
@@ -1664,7 +1669,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                         <div className="flex items-center">
                           <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5 text-[#64c7cd] mr-2" />
                           <p className="text-xs sm:text-sm text-black font-medium">
-                            {selectedFolderIds.length} carpeta(s) seleccionada(s)
+                            {selectedFolderIds.length} {t('client.foldersSelected')}
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -1681,7 +1686,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                             ) : (
                               <>
                                 <Download className="h-3 w-3" />
-                                <span>Descargar todo</span>
+                                <span>{t('client.downloadAll')}</span>
                               </>
                             )}
                           </button>
@@ -1698,7 +1703,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                             ) : (
                               <>
                                 <Trash2 className="h-3 w-3" />
-                                <span>Eliminar</span>
+                                <span>{t('client.deleteButton')}</span>
                               </>
                             )}
                           </button>
@@ -1715,7 +1720,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                             ) : (
                               <>
                                 <Send className="h-3 w-3" />
-                                <span>Enviar</span>
+                                <span>{t('client.sendButton')}</span>
                               </>
                             )}
                           </button>
@@ -1740,7 +1745,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                             className="px-3 py-1.5 text-xs font-medium text-white bg-[#64c7cd] border border-[#64c7cd]/40 rounded-lg hover:bg-[#64c7cd]/80 hover:shadow-lg transition-all duration-300 flex items-center space-x-1"
                           >
                             <ChevronLeft className="h-3 w-3" />
-                            <span>Volver</span>
+                            <span>{t('client.backButton')}</span>
                           </button>
                           <div>
                             <h3 className="text-sm sm:text-base font-bold text-black">{selectedFolder.folderName}</h3>
@@ -1808,14 +1813,14 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                               disabled={folderPage === 1}
                               className="px-3 py-1.5 text-xs font-medium text-white bg-[#64c7cd] border border-[#64c7cd]/40 rounded-lg hover:bg-[#64c7cd]/80 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 flex items-center space-x-1"
                             >
-                              <ChevronLeft className="h-3 w-3" /> <span>Anterior</span>
+                              <ChevronLeft className="h-3 w-3" /> <span>{t('common.back')}</span>
                             </button>
                             <button
                               onClick={() => setFolderPage(prev => Math.min(Math.ceil(selectedFolder.documents.length / folderPageSize), prev + 1))}
                               disabled={folderPage >= Math.ceil(selectedFolder.documents.length / folderPageSize)}
                               className="px-3 py-1.5 text-xs font-medium text-white bg-[#64c7cd] border border-[#64c7cd]/40 rounded-lg hover:bg-[#64c7cd]/80 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 flex items-center space-x-1"
                             >
-                              <span>Siguiente</span> <ChevronRight className="h-3 w-3" />
+                              <span>{t('common.next')}</span> <ChevronRight className="h-3 w-3" />
                             </button>
                           </div>
                         </div>
@@ -1836,7 +1841,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                                   : 'text-black/40'
                                 }`}
                             />
-                            <span>Seleccionar Todas</span>
+                            <span>{t('client.selectAll')}</span>
                           </button>
                         </div>
                       )}
@@ -1846,8 +1851,8 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                         <div className="p-12 text-center">
                           <div className="flex flex-col items-center justify-center">
                             <FileText className="h-16 w-16 text-gray-400 mb-4" />
-                            <p className="text-lg font-medium text-black mb-1">No hay documentos</p>
-                            <p className="text-sm text-black/60">Aún no has subido ningún documento</p>
+                            <p className="text-lg font-medium text-black mb-1">{t('documents.noDocuments')}</p>
+                            <p className="text-sm text-black/60">{t('client.noDocuments')}</p>
                           </div>
                         </div>
                       ) : (
@@ -1930,7 +1935,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                     <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   <h3 className="text-lg sm:text-xl font-bold text-black">
-                    ¡{uploadedFileNames.length > 1 ? 'Documentos' : 'Documento'} Subido{uploadedFileNames.length > 1 ? 's' : ''} Exitosamente!
+                    {t('documents.uploadSuccess')}
                   </h3>
                 </div>
                 <p className="text-xs sm:text-sm text-black">
@@ -1948,7 +1953,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-black truncate">{fileName}</p>
-                          <p className="text-xs text-black">Archivo procesado correctamente</p>
+                          <p className="text-xs text-black">{t('documents.completed')}</p>
                         </div>
                       </div>
                     </div>
@@ -1958,7 +1963,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                 <div className="p-3 bg-gray-50 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-black mb-1">Total de Documentos</p>
+                      <p className="text-xs text-black mb-1">{t('documents.status')}</p>
                       <p className="text-lg font-semibold text-black">{readyDocs.length}</p>
                     </div>
                     <div className="p-2 bg-gray-100 rounded-lg">
@@ -1970,7 +1975,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                 <div className="p-3 bg-gray-50 rounded-xl">
                   <div className="flex items-center space-x-2 text-xs text-black">
                     <CheckSquare className="h-3 w-3 text-black" />
-                    <span>El{uploadedFileNames.length > 1 ? 's' : ''} documento{uploadedFileNames.length > 1 ? 's' : ''} está{uploadedFileNames.length > 1 ? 'n' : ''} listo{uploadedFileNames.length > 1 ? 's' : ''} para revisión y descarga</span>
+                    <span>{t('client.readyToSend')}</span>
                   </div>
                 </div>
               </div>
@@ -1980,7 +1985,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   onClick={() => setShowSuccessModal(false)}
                   className="w-full sm:w-auto bg-[#eb3089] px-4 sm:px-6 py-2 text-sm font-medium text-white border border-[#eb3089]/40 rounded-xl hover:bg-[#eb3089]/80 transition-all duration-300 hover:scale-105 shadow-md"
                 >
-                  Continuar
+                  {t('company.continue')}
                 </button>
               </div>
             </div>
@@ -2026,7 +2031,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   onClick={() => setShowFeedbackModal(false)}
                   className="w-full sm:w-auto px-4 sm:px-6 py-2 text-sm font-medium text-white bg-[#64c7cd] border border-[#64c7cd]/40 rounded-xl hover:bg-[#64c7cd]/80 hover:shadow-lg transition-all duration-300"
                 >
-                  Entendido
+                  {t('common.confirm')}
                 </button>
               </div>
             </div>
@@ -2060,9 +2065,9 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   <div className="p-2 bg-[#eb3089] rounded-xl">
                     <Building className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-black">Seleccionar Empresas</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-black">{t('company.selectCompanies')}</h3>
                 </div>
-                <p className="text-xs sm:text-sm text-black/60">Elige una o más empresas para enviar los documentos</p>
+                <p className="text-xs sm:text-sm text-black/60">{t('company.selectCompaniesSubtitle')}</p>
                 {selectedCompanyIds.length > 0 && (
                   <p className="text-xs sm:text-sm text-[#eb3089] font-medium mt-2">
                     {selectedCompanyIds.length} empresa(s) seleccionada(s)
@@ -2074,11 +2079,11 @@ export const ClientReadyDocumentsPage: React.FC = () => {
               <div className="mb-4 p-3 bg-[#64c7cd]/10 rounded-xl border border-[#64c7cd]/30">
                 <div className="flex items-center justify-between text-sm">
                   <div>
-                    <p className="text-black/60 text-xs mb-1">Documentos a enviar</p>
+                    <p className="text-black/60 text-xs mb-1">{t('documents.selectedFiles')}</p>
                     <p className="text-black font-semibold">{calculateTotalSize().docCount} PDFs</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-black/60 text-xs mb-1">Tamaño total</p>
+                    <p className="text-black/60 text-xs mb-1">{t('common.total')}</p>
                     <p className="text-black font-semibold">~{Math.round(calculateTotalSize().totalSize / 1024)}KB</p>
                   </div>
                 </div>
@@ -2127,7 +2132,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   disabled={sending}
                   className="px-4 py-2 text-sm font-medium text-black bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-sm disabled:opacity-50"
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={() => selectedCompanyIds.length > 0 && performSendToCompany(selectedCompanyIds)}
@@ -2138,7 +2143,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                       : 'bg-[#eb3089] hover:bg-[#eb3089]/80 hover:scale-105'
                   }`}
                 >
-                  {sending ? 'Enviando...' : `Enviar a ${selectedCompanyIds.length} Empresa(s)`}
+                  {sending ? t('documents.uploading') : t('documents.send')}
                 </button>
               </div>
             </div>
@@ -2164,10 +2169,10 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   <div className="p-2 rounded-xl bg-[#eb3089]">
                     <Trash2 className="h-5 w-5 text-white" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-black">Confirmar eliminación</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-black">{t('common.confirm')}</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-black">
-                  {pendingDeleteFolderIds.length} carpeta(s) seleccionada(s). ¿Deseas eliminar las carpetas y todos sus documentos de la vista?
+                  {t('company.confirmDelete')}
                 </p>
               </div>
               <div className="flex items-center justify-end space-x-3">
@@ -2176,14 +2181,14 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   disabled={deleting}
                   className="px-4 sm:px-6 py-2 text-sm font-medium text-black bg-white border border-[#64c7cd]/40 rounded-xl hover:bg-gray-50 hover:shadow-lg transition-all duration-300"
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={confirmDeleteFolders}
                   disabled={deleting}
                   className="px-4 sm:px-6 py-2 text-sm font-medium text-white bg-[#eb3089] border border-[#eb3089]/40 rounded-xl hover:bg-[#eb3089]/80 hover:shadow-lg transition-all duration-300"
                 >
-                  {deleting ? 'Eliminando...' : 'Sí, eliminar'}
+                  {deleting ? t('documents.uploading') : t('common.yes')}
                 </button>
               </div>
             </div>
@@ -2227,7 +2232,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                     <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-black">Documento Procesado</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-black">{t('documents.preview')}</h3>
                     <p className="text-xs sm:text-sm text-black">
                       RFC: {previewDocument.rfcEmisor}
                     </p>
@@ -2241,7 +2246,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="text-center space-y-4">
                       <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto"></div>
-                      <p className="text-black">Cargando PDF...</p>
+                      <p className="text-black">{t('common.loading')}</p>
                     </div>
                   </div>
                 ) : pdfError ? (
@@ -2253,7 +2258,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                         onClick={() => previewDocument && handlePreviewDocument(previewDocument)}
                         className="px-4 py-2 text-sm font-medium text-white bg-[#64c7cd] rounded-xl hover:bg-[#64c7cd]/80 transition-all duration-300"
                       >
-                        Reintentar
+                        {t('common.refresh')}
                       </button>
                     </div>
                   </div>
@@ -2268,7 +2273,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="text-center">
                       <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                      <p className="text-black mb-2">No se pudo cargar el PDF</p>
+                      <p className="text-black mb-2">{t('errors.somethingWentWrong')}</p>
                     </div>
                   </div>
                 )}
@@ -2300,10 +2305,10 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   <div className="p-2 bg-[#eb3089] rounded-xl">
                     <Building className="h-5 w-5 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-black">Mis Empresas</h3>
+                  <h3 className="text-xl font-bold text-black">{t('client.myCompanies')}</h3>
                 </div>
                 <p className="text-sm text-black/60">
-                  Gestiona las empresas a las que puedes enviar documentos
+                  {t('company.selectCompaniesSubtitle')}
                 </p>
               </div>
 
@@ -2317,7 +2322,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   className="px-4 py-2 bg-[#eb3089] text-white rounded-xl hover:bg-[#eb3089]/80 transition-all duration-300 hover:scale-105 flex items-center space-x-2"
                 >
                   <Building className="h-4 w-4" />
-                  <span>Agregar Empresa</span>
+                  <span>{t('client.addCompany')}</span>
                 </button>
               </div>
 
@@ -2325,8 +2330,8 @@ export const ClientReadyDocumentsPage: React.FC = () => {
               {myCompanies.length === 0 ? (
                 <div className="text-center py-12">
                   <Building className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm text-black/60 mb-1">No tienes empresas asociadas</p>
-                  <p className="text-xs text-black/40">Haz clic en "Agregar Empresa" para comenzar</p>
+                  <p className="text-sm text-black/60 mb-1">{t('client.noCompanies')}</p>
+                  <p className="text-xs text-black/40">{t('client.addCompany')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -2364,7 +2369,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   onClick={() => setShowManageCompaniesModal(false)}
                   className="px-6 py-2 text-sm font-medium text-white bg-[#64c7cd] rounded-xl hover:bg-[#64c7cd]/80 transition-all duration-300 hover:scale-105 shadow-lg"
                 >
-                  Cerrar
+                  {t('common.close')}
                 </button>
               </div>
             </div>
@@ -2398,10 +2403,10 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   <div className="p-2 bg-[#eb3089] rounded-xl">
                     <Building className="h-5 w-5 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-black">Agregar Empresas</h3>
+                  <h3 className="text-xl font-bold text-black">{t('client.addCompany')}</h3>
                 </div>
                 <p className="text-sm text-black/60">
-                  Selecciona las empresas que deseas agregar
+                  {t('company.selectCompaniesSubtitle')}
                 </p>
                 {selectedNewCompanyIds.length > 0 && (
                   <p className="text-sm text-[#eb3089] font-medium mt-2">
@@ -2413,8 +2418,8 @@ export const ClientReadyDocumentsPage: React.FC = () => {
               {availableCompanies.length === 0 ? (
                 <div className="text-center py-12">
                   <Building className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm text-black/60">No hay empresas disponibles</p>
-                  <p className="text-xs text-black/40 mt-1">Todas las empresas ya están en tu lista</p>
+                  <p className="text-sm text-black/60">{t('company.noCompaniesFound')}</p>
+                  <p className="text-xs text-black/40 mt-1">{t('common.none')}</p>
                 </div>
               ) : (
                 <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
@@ -2460,7 +2465,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                   }}
                   className="flex-1 px-4 py-3 text-sm font-medium text-black bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition-all duration-300"
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleAddCompanies}
@@ -2471,7 +2476,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                       : 'bg-[#eb3089] hover:shadow-xl hover:scale-105'
                   }`}
                 >
-                  Agregar {selectedNewCompanyIds.length > 0 && `(${selectedNewCompanyIds.length})`}
+                  {t('client.addCompany')} {selectedNewCompanyIds.length > 0 && `(${selectedNewCompanyIds.length})`}
                 </button>
               </div>
             </div>

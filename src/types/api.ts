@@ -40,6 +40,8 @@ export interface VerifyOTPResponse {
   success: boolean
   message: string
   email?: string
+  token?: string
+  role?: string
 }
 
 export interface ResendOTPRequest {

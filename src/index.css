@@ -209,8 +209,3 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
-
-/* Force all text to black within client page */
-.client-text-black, .client-text-black * {
-  color: #000 !important;
-}

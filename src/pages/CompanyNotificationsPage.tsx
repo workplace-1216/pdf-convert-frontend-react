@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Bell, ArrowLeft, Trash2, CheckCircle, FileText, XCircle, AlertCircle } from 'lucide-react'
 import { API_URL } from '../config/api.config'
 import { Skeleton } from '../components/Skeleton'
@@ -15,6 +16,7 @@ interface Notification {
 
 export const CompanyNotificationsPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const [showClearAllModal, setShowClearAllModal] = useState(false)
@@ -74,6 +76,21 @@ export const CompanyNotificationsPage: React.FC = () => {
 
       if (response.ok) {
         setNotifications(prev => prev.filter(n => n.id !== id))
+
+        // Also add to dismissed list so it disappears from bell modal
+        const dismissed = localStorage.getItem('companyDismissedNotifications')
+        let dismissedIds: number[] = []
+        if (dismissed) {
+          try {
+            dismissedIds = JSON.parse(dismissed)
+          } catch (e) {
+            console.error('Error parsing dismissed notifications:', e)
+          }
+        }
+        if (!dismissedIds.includes(id)) {
+          dismissedIds.push(id)
+          localStorage.setItem('companyDismissedNotifications', JSON.stringify(dismissedIds))
+        }
       }
     } catch (error) {
       console.error('Error deleting notification:', error)
@@ -91,6 +108,20 @@ export const CompanyNotificationsPage: React.FC = () => {
       })
 
       if (response.ok) {
+        // Add all current notification IDs to dismissed list
+        const notificationIds = notifications.map(n => n.id)
+        const dismissed = localStorage.getItem('companyDismissedNotifications')
+        let dismissedIds: number[] = []
+        if (dismissed) {
+          try {
+            dismissedIds = JSON.parse(dismissed)
+          } catch (e) {
+            console.error('Error parsing dismissed notifications:', e)
+          }
+        }
+        const newDismissedIds = [...new Set([...dismissedIds, ...notificationIds])]
+        localStorage.setItem('companyDismissedNotifications', JSON.stringify(newDismissedIds))
+
         setNotifications([])
         setShowClearAllModal(false)
       } else {
@@ -113,14 +144,14 @@ export const CompanyNotificationsPage: React.FC = () => {
             className="flex items-center space-x-2 text-black hover:text-[#eb3089] transition-colors mb-4"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="font-medium">Volver al Dashboard</span>
+            <span className="font-medium">{t('company.backToDashboard')}</span>
           </button>
-          
+
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-black">Notificaciones</h1>
+              <h1 className="text-2xl font-bold text-black">{t('company.notifications')}</h1>
               <p className="text-sm text-black/60">
-                {notifications.filter(n => !n.isRead).length} no leídas de {notifications.length} total
+                {notifications.filter(n => !n.isRead).length} {t('company.unreadOf')} {notifications.length} {t('company.total')}
               </p>
             </div>
             {notifications.length > 0 && (
@@ -128,7 +159,7 @@ export const CompanyNotificationsPage: React.FC = () => {
                 onClick={() => setShowClearAllModal(true)}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all duration-300 hover:scale-105"
               >
-                Limpiar Todas
+                {t('company.clearAll')}
               </button>
             )}
           </div>
@@ -147,8 +178,8 @@ export const CompanyNotificationsPage: React.FC = () => {
           ) : notifications.length === 0 ? (
             <div className="p-12 text-center">
               <Bell className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-black mb-2">No hay notificaciones</h3>
-              <p className="text-sm text-black/60">Cuando reciba documentos, aparecerán aquí</p>
+              <h3 className="text-lg font-semibold text-black mb-2">{t('company.noNotifications')}</h3>
+              <p className="text-sm text-black/60">{t('company.whenReceiveDocuments')}</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
@@ -171,16 +202,16 @@ export const CompanyNotificationsPage: React.FC = () => {
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
                           <h3 className="text-base font-semibold text-black">
-                            Nuevos documentos recibidos
+                            {t('company.newDocumentsReceived')}
                           </h3>
                           {!notification.isRead && (
                             <span className="px-2 py-0.5 text-xs font-medium bg-[#eb3089] text-white rounded-full">
-                              Nuevo
+                              {t('company.newBadge')}
                             </span>
                           )}
                         </div>
                         <p className="text-sm text-black/70 mb-2">
-                          {notification.documentCount} documento(s) enviado(s) por{' '}
+                          {notification.documentCount} {t('company.documentsSentBy')}{' '}
                           <span className="font-medium text-black">{notification.clientEmail}</span>
                         </p>
                         <p className="text-xs text-black/50">
@@ -199,7 +230,7 @@ export const CompanyNotificationsPage: React.FC = () => {
                         <button
                           onClick={() => handleMarkAsRead(notification.id)}
                           className="p-2 hover:bg-green-100 rounded-lg transition-colors"
-                          title="Marcar como leído"
+                          title={t('company.markAsRead')}
                         >
                           <CheckCircle className="h-4 w-4 text-green-600" />
                         </button>
@@ -207,7 +238,7 @@ export const CompanyNotificationsPage: React.FC = () => {
                       <button
                         onClick={() => handleDeleteNotification(notification.id)}
                         className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                        title="Eliminar notificación"
+                        title={t('company.deleteNotification')}
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
                       </button>
@@ -244,18 +275,18 @@ export const CompanyNotificationsPage: React.FC = () => {
                 <div className="p-3 bg-red-100 rounded-xl">
                   <AlertCircle className="h-6 w-6 text-red-600" />
                 </div>
-                <h3 className="text-xl font-bold text-black">Confirmar Eliminación</h3>
+                <h3 className="text-xl font-bold text-black">{t('company.confirmDeletion')}</h3>
               </div>
-              
+
               <p className="text-sm text-black/70 mb-4">
-                ¿Está seguro de que desea eliminar todas las notificaciones?
+                {t('company.confirmDeleteAll')}
               </p>
-              
+
               <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                 <p className="text-sm text-black font-medium mb-1">
-                  Se eliminarán {notifications.length} notificación(es)
+                  {t('company.willBeDeleted')} {notifications.length} {t('company.notificationCount')}
                 </p>
-                <p className="text-xs text-red-600 font-medium mt-2">Esta acción no se puede deshacer.</p>
+                <p className="text-xs text-red-600 font-medium mt-2">{t('company.cannotUndo')}</p>
               </div>
             </div>
 
@@ -265,14 +296,14 @@ export const CompanyNotificationsPage: React.FC = () => {
                 disabled={clearing}
                 className="flex-1 px-4 py-3 text-sm font-medium text-black bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition-all duration-300 disabled:opacity-50"
               >
-                Cancelar
+                {t('company.cancel')}
               </button>
               <button
                 onClick={handleConfirmClearAll}
                 disabled={clearing}
                 className="flex-1 px-4 py-3 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all duration-300 hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {clearing ? 'Eliminando...' : 'Sí, Eliminar Todas'}
+                {clearing ? t('company.deleting') : t('company.yesDeleteAll')}
               </button>
             </div>
           </div>

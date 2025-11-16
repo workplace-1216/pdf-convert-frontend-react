@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   FileText,
   Download,
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { CompanyNotificationBell } from '../components/CompanyNotificationBell'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 import { API_URL } from '../config/api.config'
 
 interface ReceivedDocument {
@@ -31,6 +33,7 @@ interface ReceivedDocument {
 }
 
 export const CompanyDashboardPage: React.FC = () => {
+  const { t } = useTranslation()
   const { user, logout } = useAuth()
   const [documents, setDocuments] = useState<ReceivedDocument[]>([])
   const [loading, setLoading] = useState(true)
@@ -61,7 +64,7 @@ export const CompanyDashboardPage: React.FC = () => {
       })
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
+        const errorData = await response.json().catch(() => ({ message: t('errors.somethingWentWrong') }))
         console.error('Error response:', response.status, errorData)
         throw new Error(errorData.message || 'Failed to fetch documents')
       }
@@ -90,8 +93,8 @@ export const CompanyDashboardPage: React.FC = () => {
       })
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error al cargar el PDF' }))
-        throw new Error(errorData.message || 'Error al cargar el PDF')
+        const errorData = await response.json().catch(() => ({ message: t('errors.uploadError') }))
+        throw new Error(errorData.message || t('errors.uploadError'))
       }
       
       const blob = await response.blob()
@@ -99,7 +102,7 @@ export const CompanyDashboardPage: React.FC = () => {
       setPdfUrl(url)
     } catch (error: any) {
       console.error('Error loading PDF:', error)
-      setErrorMessage(error.message || 'Error al cargar el PDF. Por favor intente nuevamente.')
+      setErrorMessage(error.message || t('errors.tryAgain'))
       setShowErrorModal(true)
       setShowPdfModal(false)
       setPdfLoading(false)
@@ -117,8 +120,8 @@ export const CompanyDashboardPage: React.FC = () => {
       })
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error al descargar el PDF' }))
-        throw new Error(errorData.message || 'Error al descargar el PDF')
+        const errorData = await response.json().catch(() => ({ message: t('company.errorDownloadingPDF') }))
+        throw new Error(errorData.message || t('company.errorDownloadingPDF'))
       }
       
       const blob = await response.blob()
@@ -132,7 +135,7 @@ export const CompanyDashboardPage: React.FC = () => {
       URL.revokeObjectURL(url)
     } catch (error: any) {
       console.error('Error downloading document:', error)
-      setErrorMessage(error.message || 'Error al descargar el documento. Por favor intente nuevamente.')
+      setErrorMessage(error.message || t('company.errorDownloadingDocument'))
       setShowErrorModal(true)
     }
   }
@@ -164,8 +167,8 @@ export const CompanyDashboardPage: React.FC = () => {
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error al eliminar' }))
-        throw new Error(errorData.message || 'Error al eliminar el documento')
+        const errorData = await response.json().catch(() => ({ message: t('company.delete') }))
+        throw new Error(errorData.message || t('company.errorDeletingDocument'))
       }
 
       // Success - refresh documents
@@ -177,7 +180,7 @@ export const CompanyDashboardPage: React.FC = () => {
       console.log('Document deleted successfully')
     } catch (error: any) {
       console.error('Error deleting document:', error)
-      setErrorMessage(error.message || 'Error al eliminar el documento. Por favor intente nuevamente.')
+      setErrorMessage(error.message || t('company.errorDeletingDocument'))
       setShowErrorModal(true)
       setShowDeleteModal(false)
     } finally {
@@ -208,11 +211,12 @@ export const CompanyDashboardPage: React.FC = () => {
                 <Building className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-black">Portal de Empresa</h1>
+                <h1 className="text-xl font-bold text-black">{t('company.companyDashboard')}</h1>
                 <p className="text-sm text-black/60">{user?.email}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <CompanyNotificationBell />
               <button
                 onClick={logout}
@@ -221,7 +225,7 @@ export const CompanyDashboardPage: React.FC = () => {
                 <div className="p-2 rounded-lg bg-[#eb3089]/10 group-hover:bg-[#eb3089]/20">
                   <LogOut className="h-4 w-4 !text-rose-500" />
                 </div>
-                <span className="text-sm font-medium !text-rose-500 hidden sm:inline">Cerrar Sesión</span>
+                <span className="text-sm font-medium !text-rose-500 hidden sm:inline">{t('nav.logout')}</span>
               </button>
             </div>
           </div>
@@ -234,7 +238,7 @@ export const CompanyDashboardPage: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-md border border-[#64c7cd]/30 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-black/60 mb-1">Total Recibidos</p>
+                <p className="text-sm text-black/60 mb-1">{t('company.totalReceived')}</p>
                 <p className="text-2xl font-bold text-black">{documents.length}</p>
               </div>
               <div className="p-3 bg-[#64c7cd] rounded-xl">
@@ -246,7 +250,7 @@ export const CompanyDashboardPage: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-md border border-[#64c7cd]/30 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-black/60 mb-1">Hoy</p>
+                <p className="text-sm text-black/60 mb-1">{t('company.today')}</p>
                 <p className="text-2xl font-bold text-black">
                   {documents.filter(d => {
                     const today = new Date().toDateString()
@@ -263,7 +267,7 @@ export const CompanyDashboardPage: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-md border border-[#64c7cd]/30 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-black/60 mb-1">Clientes Activos</p>
+                <p className="text-sm text-black/60 mb-1">{t('company.activeClients')}</p>
                 <p className="text-2xl font-bold text-black">
                   {new Set(documents.map(d => d.clientEmail)).size}
                 </p>
@@ -281,7 +285,7 @@ export const CompanyDashboardPage: React.FC = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-black/60" />
             <input
               type="text"
-              placeholder="Buscar por nombre de archivo o cliente..."
+              placeholder={t('company.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-white border border-[#64c7cd]/30 rounded-xl text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#64c7cd] focus:border-transparent"
@@ -295,25 +299,25 @@ export const CompanyDashboardPage: React.FC = () => {
             <table className="w-full">
               <thead className="bg-[#64c7cd]/15 border-b border-[#64c7cd]/30">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-black">Documento</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-black">Cliente</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-black">Fecha Recibido</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-black">RFC Extraído</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-black">Acciones</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('company.document')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('company.client')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('company.dateReceived')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('company.extractedRFC')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('company.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {loading ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-black/60">
-                      Cargando documentos...
+                      {t('company.loadingDocuments')}
                     </td>
                   </tr>
                 ) : paginatedDocuments.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center">
                       <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-black/60">No hay documentos recibidos</p>
+                      <p className="text-black/60">{t('company.noDocumentsReceived')}</p>
                     </td>
                   </tr>
                 ) : (
@@ -352,21 +356,21 @@ export const CompanyDashboardPage: React.FC = () => {
                           <button
                             onClick={() => handleViewPdf(doc)}
                             className="p-2 hover:bg-green-500/20 rounded-lg transition-colors"
-                            title="Ver PDF"
+                            title={t('company.viewPDF')}
                           >
                             <Eye className="h-4 w-4 text-black hover:text-green-600" />
                           </button>
                           <button
                             onClick={() => handleDownload(doc.id, doc.fileName)}
                             className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors"
-                            title="Descargar"
+                            title={t('company.download')}
                           >
                             <Download className="h-4 w-4 text-black hover:text-blue-600" />
                           </button>
                           <button
                             onClick={() => handleShowDeleteModal(doc)}
                             className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
-                            title="Eliminar"
+                            title={t('company.delete')}
                           >
                             <Trash2 className="h-4 w-4 text-black hover:text-red-600" />
                           </button>
@@ -383,7 +387,7 @@ export const CompanyDashboardPage: React.FC = () => {
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
               <p className="text-sm text-black/60">
-                Mostrando {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredDocuments.length)} de {filteredDocuments.length}
+                {t('company.showing')} {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredDocuments.length)} {t('company.of')} {filteredDocuments.length}
               </p>
               <div className="flex items-center space-x-2">
                 <button
@@ -394,7 +398,7 @@ export const CompanyDashboardPage: React.FC = () => {
                   <ChevronLeft className="h-4 w-4 text-black" />
                 </button>
                 <span className="text-sm text-black">
-                  Página {currentPage} de {totalPages}
+                  {t('company.page')} {currentPage} {t('company.of')} {totalPages}
                 </span>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
@@ -448,7 +452,7 @@ export const CompanyDashboardPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-black">{selectedDocument.fileName}</h3>
-                    <p className="text-sm text-black/60">Cliente: {selectedDocument.clientEmail}</p>
+                    <p className="text-sm text-black/60">{t('company.client')}: {selectedDocument.clientEmail}</p>
                   </div>
                 </div>
                 <button
@@ -456,7 +460,7 @@ export const CompanyDashboardPage: React.FC = () => {
                   className="px-4 py-2 text-sm font-medium text-white bg-[#64c7cd] rounded-xl hover:bg-[#64c7cd]/80 transition-all duration-300 hover:scale-105 shadow-lg flex items-center space-x-2"
                 >
                   <Download className="h-4 w-4" />
-                  <span>Descargar</span>
+                  <span>{t('company.download')}</span>
                 </button>
               </div>
             </div>
@@ -467,7 +471,7 @@ export const CompanyDashboardPage: React.FC = () => {
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center space-y-4">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto"></div>
-                    <p className="text-black">Cargando PDF...</p>
+                    <p className="text-black">{t('company.loadingPDF')}</p>
                   </div>
                 </div>
               ) : pdfUrl ? (
@@ -480,7 +484,7 @@ export const CompanyDashboardPage: React.FC = () => {
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center">
                     <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-black mb-2">No se pudo cargar el PDF</p>
+                    <p className="text-black mb-2">{t('company.couldNotLoadPDF')}</p>
                   </div>
                 </div>
               )}
@@ -517,17 +521,17 @@ export const CompanyDashboardPage: React.FC = () => {
                 <div className="p-3 bg-red-100 rounded-xl">
                   <Trash2 className="h-6 w-6 text-red-600" />
                 </div>
-                <h3 className="text-xl font-bold text-black">Confirmar Eliminación</h3>
+                <h3 className="text-xl font-bold text-black">{t('company.confirmDeletion')}</h3>
               </div>
-              
+
               <p className="text-sm text-black/70 mb-4">
-                ¿Estás seguro de que deseas eliminar este documento?
+                {t('company.confirmDeleteMessage')}
               </p>
-              
+
               <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                 <p className="font-semibold text-black mb-1">{documentToDelete.fileName}</p>
-                <p className="text-xs text-black/60 mb-1">Cliente: {documentToDelete.clientEmail}</p>
-                <p className="text-xs text-red-600 font-medium mt-2">Esta acción no se puede deshacer.</p>
+                <p className="text-xs text-black/60 mb-1">{t('company.client')}: {documentToDelete.clientEmail}</p>
+                <p className="text-xs text-red-600 font-medium mt-2">{t('company.cannotUndo')}</p>
               </div>
             </div>
 
@@ -540,14 +544,14 @@ export const CompanyDashboardPage: React.FC = () => {
                 disabled={deleting}
                 className="flex-1 px-4 py-3 text-sm font-medium text-black bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition-all duration-300 disabled:opacity-50"
               >
-                Cancelar
+                {t('company.cancel')}
               </button>
               <button
                 onClick={handleConfirmDelete}
                 disabled={deleting}
                 className="flex-1 px-4 py-3 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all duration-300 hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {deleting ? 'Eliminando...' : 'Sí, Eliminar'}
+                {deleting ? t('company.deleting') : t('company.yesDelete')}
               </button>
             </div>
           </div>
@@ -577,9 +581,9 @@ export const CompanyDashboardPage: React.FC = () => {
                 <div className="p-3 bg-red-100 rounded-xl">
                   <AlertCircle className="h-6 w-6 text-red-600" />
                 </div>
-                <h3 className="text-xl font-bold text-black">Error</h3>
+                <h3 className="text-xl font-bold text-black">{t('company.error')}</h3>
               </div>
-              
+
               <p className="text-sm text-black/70">
                 {errorMessage}
               </p>
@@ -590,7 +594,7 @@ export const CompanyDashboardPage: React.FC = () => {
                 onClick={() => setShowErrorModal(false)}
                 className="px-6 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all duration-300 hover:scale-105 shadow-lg"
               >
-                Cerrar
+                {t('company.close')}
               </button>
             </div>
           </div>

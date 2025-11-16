@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Mail, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react'
 
 interface OTPVerificationProps {
@@ -16,6 +17,7 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
   onResend,
   onBack
 }) => {
+  const { t } = useTranslation()
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
@@ -91,7 +93,7 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
     console.log('[OTPVerification] Submitting OTP:', { code, length: code.length, codeArray: otp })
 
     if (code.length !== 6) {
-      setError('Please enter all 6 digits')
+      setError(t('otp.pleaseEnterAllDigits'))
       return
     }
 
@@ -106,7 +108,7 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
     } catch (err: any) {
       console.error('[OTPVerification] ❌ Verification failed:', err)
       console.error('[OTPVerification] Error response:', err.response?.data)
-      setError(err.response?.data?.message || 'Invalid verification code')
+      setError(err.response?.data?.message || t('otp.invalidVerificationCode'))
       setOtp(['', '', '', '', '', ''])
       inputRefs.current[0]?.focus()
     } finally {
@@ -126,7 +128,7 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
       setResendCooldown(60) // 60 second cooldown
       inputRefs.current[0]?.focus()
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to resend code')
+      setError(err.response?.data?.message || t('otp.failedToResendCode'))
     } finally {
       setResending(false)
     }
@@ -140,17 +142,17 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Email Verified!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('otp.emailVerified')}</h2>
             <p className="text-gray-600">
-              Your email has been successfully verified.
-              {userType === 'company' ? ' Your company registration is now pending admin approval.' : ' You can now log in to your account.'}
+              {t('otp.emailVerifiedSuccess')}
+              {userType === 'company' ? t('otp.companyPendingApproval') : t('otp.canLoginNow')}
             </p>
           </div>
           <button
             onClick={() => window.location.href = '/login'}
             className="btn-primary w-full"
           >
-            Go to Login
+            {t('otp.goToLogin')}
           </button>
         </div>
       </div>
@@ -165,9 +167,9 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
           <div className="mx-auto w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
             <Mail className="w-8 h-8 text-primary-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify Your Email</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('otp.verifyYourEmail')}</h2>
           <p className="text-gray-600 text-sm">
-            We've sent a 6-digit verification code to
+            {t('otp.sentCodeTo')}
           </p>
           <p className="font-medium text-gray-900 mt-1">{email}</p>
         </div>
@@ -207,12 +209,12 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
             disabled={loading || otp.some(d => !d)}
             className="btn-primary w-full mb-4"
           >
-            {loading ? 'Verifying...' : 'Verify Email'}
+            {loading ? t('otp.verifying') : t('otp.verifyEmail')}
           </button>
 
           {/* Resend Code */}
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">Didn't receive the code?</p>
+            <p className="text-sm text-gray-600 mb-2">{t('otp.didNotReceiveCode')}</p>
             <button
               onClick={handleResend}
               disabled={resending || resendCooldown > 0}
@@ -220,10 +222,10 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
             >
               <RefreshCw className={`w-4 h-4 ${resending ? 'animate-spin' : ''}`} />
               {resendCooldown > 0
-                ? `Resend in ${resendCooldown}s`
+                ? `${t('otp.resendIn')} ${resendCooldown}s`
                 : resending
-                  ? 'Sending...'
-                  : 'Resend Code'}
+                  ? t('otp.sending')
+                  : t('otp.resendCode')}
             </button>
           </div>
         </div>
@@ -235,7 +237,7 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
               onClick={onBack}
               className="text-gray-600 hover:text-gray-900 text-sm"
             >
-              ← Back to Registration
+              {t('otp.backToRegistration')}
             </button>
           </div>
         )}
@@ -243,8 +245,7 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
         {/* Info */}
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
           <p className="text-xs text-blue-800">
-            <strong>Tip:</strong> The verification code will expire in 15 minutes.
-            Check your spam folder if you don't see the email.
+            <strong>{t('otp.tip')}</strong> {t('otp.codeExpiresInfo')}
           </p>
         </div>
       </div>

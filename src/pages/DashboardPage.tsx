@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { documentApi } from '../services/api'
 import { FileText, Upload, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 import { DashboardSkeleton } from '../components/Skeleton'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 
 export const DashboardPage: React.FC = () => {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [documents, setDocuments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,11 +67,14 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Welcome back, {user?.email}! Here's an overview of your documents.
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.welcome')}</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            {user?.email}
+          </p>
+        </div>
+        <LanguageSwitcher />
       </div>
 
       {/* Stats Cards */}
@@ -79,7 +85,7 @@ export const DashboardPage: React.FC = () => {
               <FileText className="h-8 w-8 text-primary-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Documents</p>
+              <p className="text-sm font-medium text-gray-500">{t('dashboard.totalDocuments')}</p>
               <p className="text-2xl font-semibold text-gray-900">{documents.length}</p>
             </div>
           </div>
@@ -91,7 +97,7 @@ export const DashboardPage: React.FC = () => {
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Approved</p>
+              <p className="text-sm font-medium text-gray-500">{t('admin.approved')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {documents.filter(d => d.status === 'Approved').length}
               </p>
@@ -105,7 +111,7 @@ export const DashboardPage: React.FC = () => {
               <Clock className="h-8 w-8 text-yellow-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Processing</p>
+              <p className="text-sm font-medium text-gray-500">{t('documents.processing')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {documents.filter(d => d.status === 'Processing').length}
               </p>
@@ -119,7 +125,7 @@ export const DashboardPage: React.FC = () => {
               <Upload className="h-8 w-8 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Uploaded Today</p>
+              <p className="text-sm font-medium text-gray-500">{t('dashboard.processedToday')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {documents.filter(d => {
                   const today = new Date().toDateString()
@@ -135,10 +141,10 @@ export const DashboardPage: React.FC = () => {
       {/* Recent Documents */}
       <div className="card">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-medium text-gray-900">Recent Documents</h2>
+          <h2 className="text-lg font-medium text-gray-900">{t('dashboard.recentDocuments')}</h2>
           <button className="btn-primary">
             <Upload className="h-4 w-4 mr-2" />
-            Upload New
+            {t('dashboard.uploadDocument')}
           </button>
         </div>
 
@@ -147,8 +153,8 @@ export const DashboardPage: React.FC = () => {
         ) : documents.length === 0 ? (
           <div className="text-center py-8">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No documents</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by uploading a new document.</p>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">{t('documents.noDocuments')}</h3>
+            <p className="mt-1 text-sm text-gray-500">{t('documents.dragAndDrop')}</p>
           </div>
         ) : (
           <div className="overflow-hidden">
@@ -156,16 +162,16 @@ export const DashboardPage: React.FC = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Document
+                    {t('documents.documentName')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    {t('common.status')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Size
+                    {t('documents.fileSize')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Uploaded
+                    {t('documents.uploadedAt')}
                   </th>
                 </tr>
               </thead>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useTranslation } from 'react-i18next'
 import {
   LogOut,
   Home,
@@ -9,6 +10,7 @@ import {
   MoreHorizontal
 } from 'lucide-react'
 import { AdminNotificationBell } from './AdminNotificationBell'
+import LanguageSwitcher from './LanguageSwitcher'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -18,12 +20,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { logout } = useAuth()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const { t } = useTranslation()
 
   const sidebarItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/admin' },
-    { id: 'users', label: 'Gestión de Usuarios', icon: UserCheck, path: '/admin/users' },
-    // { id: 'documents', label: 'Gestión de Documentos', icon: FileCheck, path: '/admin/documents' },
-    { id: 'reports', label: 'Reportes y Analytics', icon: PieChart, path: '/admin/reports' }
+    { id: 'dashboard', label: t('admin.dashboard'), icon: Home, path: '/admin' },
+    { id: 'users', label: t('admin.userManagement'), icon: UserCheck, path: '/admin/users' },
+    // { id: 'documents', label: t('admin.documentManagement'), icon: FileCheck, path: '/admin/documents' },
+    { id: 'reports', label: t('admin.reportsAndAnalytics'), icon: PieChart, path: '/admin/reports' }
   ]
 
   return (
@@ -59,8 +62,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </div>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-black">Admin Panel</h1>
-              <p className="text-xs text-black">Sistema de Gestión</p>
+              <h1 className="text-lg font-bold text-black">{t('admin.adminPanel')}</h1>
+              <p className="text-xs text-black">{t('admin.managementSystem')}</p>
             </div>
           </div>
         </div>
@@ -96,7 +99,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <div className="p-2 rounded-lg bg-[#eb3089]/10 group-hover:bg-[#eb3089]/20">
               <LogOut className="h-4 w-4 text-black" />
             </div>
-            <span className="text-sm font-medium text-black">Cerrar Sesión</span>
+            <span className="text-sm font-medium text-black">{t('admin.logout')}</span>
           </button>
         </div>
       </div>
@@ -114,9 +117,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             {sidebarOpen && (
               <div>
                 <h1 className="text-lg font-bold text-black">
-                  Admin Panel
+                  {t('admin.adminPanel')}
                 </h1>
-                <p className="text-xs text-black">Sistema de Gestión</p>
+                <p className="text-xs text-black">{t('admin.managementSystem')}</p>
               </div>
             )}
           </div>
@@ -164,7 +167,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
             {sidebarOpen && (
               <span className="text-sm font-medium text-black">
-                Cerrar Sesión
+                {t('admin.logout')}
               </span>
             )}
           </button>
@@ -184,12 +187,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <MoreHorizontal className="h-5 w-5 text-black" />
               </button>
               <div>
-                <h2 className="text-xl font-bold text-black">Panel de Administración</h2>
-                <p className="text-sm text-black">Sistema de gestión integral</p>
+                <h2 className="text-xl font-bold text-black">{t('admin.adminPanelTitle')}</h2>
+                <p className="text-sm text-black">{t('admin.integralManagementSystem')}</p>
               </div>
             </div>
-            {/* Notification Bell */}
-            <AdminNotificationBell />
+            {/* Language Switcher and Notification Bell */}
+            <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
+              <AdminNotificationBell />
+            </div>
           </div>
         </div>
 

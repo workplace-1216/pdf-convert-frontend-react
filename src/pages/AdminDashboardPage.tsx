@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   FileText,
   Users,
@@ -8,6 +9,7 @@ import {
   ArrowUpRight,
   Server
 } from 'lucide-react'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 import { adminApi } from '../services/api'
 import type { AdminStats, ReportsAnalyticsResponse } from '../types/api'
 import { DashboardSkeleton } from '../components/Skeleton'
@@ -35,6 +37,7 @@ const STATUS_COLORS = {
 }
 
 export const AdminDashboardPage: React.FC = () => {
+  const { t } = useTranslation()
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [analytics, setAnalytics] = useState<ReportsAnalyticsResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -57,13 +60,13 @@ export const AdminDashboardPage: React.FC = () => {
     load()
   }, [])
 
-  const [recentActivity] = useState([
-    { id: 1, type: 'user', message: 'Nuevo cliente registrado', time: '2 min', status: 'success' },
-    { id: 2, type: 'document', message: 'Documento procesado exitosamente', time: '5 min', status: 'success' },
-    { id: 3, type: 'template', message: 'Plantilla actualizada', time: '10 min', status: 'warning' },
-    { id: 4, type: 'system', message: 'Sistema optimizado', time: '15 min', status: 'info' },
-    { id: 5, type: 'document', message: 'Documento requiere revisión', time: '20 min', status: 'error' }
-  ])
+  const recentActivity = [
+    { id: 1, type: 'user', message: t('admin.newClientRegistered'), time: '2 min', status: 'success' },
+    { id: 2, type: 'document', message: t('admin.documentProcessedSuccess'), time: '5 min', status: 'success' },
+    { id: 3, type: 'template', message: t('admin.templateUpdated'), time: '10 min', status: 'warning' },
+    { id: 4, type: 'system', message: t('admin.systemOptimized'), time: '15 min', status: 'info' },
+    { id: 5, type: 'document', message: t('admin.documentRequiresReview'), time: '20 min', status: 'error' }
+  ]
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -108,9 +111,9 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
             <div>
-              <p className="text-sm text-black font-medium mb-1">Total Documentos</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.totalDocuments')}</p>
               <p className="text-2xl font-bold text-black">{stats?.totalDocuments?.toLocaleString() || '0'}</p>
-              <p className="text-xs text-black mt-2">Procesados: {stats?.processedDocuments || 0}</p>
+              <p className="text-xs text-black mt-2">{t('admin.processed')}: {stats?.processedDocuments || 0}</p>
             </div>
           </div>
         </div>
@@ -128,9 +131,9 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
             <div>
-              <p className="text-sm text-black font-medium mb-1">Usuarios Activos</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.activeUsers')}</p>
               <p className="text-2xl font-bold text-black">{stats?.activeUsers || 0}</p>
-              <p className="text-xs text-black mt-2">Total: {stats?.totalUsers || 0}</p>
+              <p className="text-xs text-black mt-2">{t('admin.total')}: {stats?.totalUsers || 0}</p>
             </div>
           </div>
         </div>
@@ -144,13 +147,13 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
               <div className="flex items-center space-x-1 text-black">
                 <ArrowUpRight className="h-4 w-4" />
-                <span className="text-sm font-medium">Hoy</span>
+                <span className="text-sm font-medium">{t('admin.today')}</span>
               </div>
             </div>
             <div>
-              <p className="text-sm text-black font-medium mb-1">Procesados Hoy</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.processedToday')}</p>
               <p className="text-2xl font-bold text-black">{stats?.processedToday || 0}</p>
-              <p className="text-xs text-black mt-2">Pendientes: {stats?.pendingDocuments || 0}</p>
+              <p className="text-xs text-black mt-2">{t('admin.pendingReview')}: {stats?.pendingDocuments || 0}</p>
             </div>
           </div>
         </div>
@@ -164,13 +167,13 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
               <div className="flex items-center space-x-1 text-black">
                 <CheckCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">Excelente</span>
+                <span className="text-sm font-medium">{t('admin.excellent')}</span>
               </div>
             </div>
             <div>
-              <p className="text-sm text-black font-medium mb-1">Documentos con Error</p>
+              <p className="text-sm text-black font-medium mb-1">{t('admin.errorDocuments')}</p>
               <p className="text-2xl font-bold text-black">{stats?.errorDocuments || 0}</p>
-              <p className="text-xs text-black mt-2">Requieren atención</p>
+              <p className="text-xs text-black mt-2">{t('admin.requireAttention')}</p>
             </div>
           </div>
         </div>
@@ -182,16 +185,16 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-black">Tendencias de Documentos</h3>
-              <p className="text-sm text-black">Últimos 12 meses</p>
+              <h3 className="text-lg font-bold text-black">{t('admin.documentTrends')}</h3>
+              <p className="text-sm text-black">{t('admin.last12Months')}</p>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-[#64c7cd] rounded-full"></div>
-              <span className="text-xs text-black">Documentos</span>
+              <span className="text-xs text-black">{t('admin.documentsLabel')}</span>
               <div className="w-3 h-3 bg-[#a5cc55] rounded-full ml-2"></div>
-              <span className="text-xs text-black">Procesados</span>
+              <span className="text-xs text-black">{t('admin.processed')}</span>
               <div className="w-3 h-3 bg-[#eb3089] rounded-full ml-2"></div>
-              <span className="text-xs text-black">Enviados</span>
+              <span className="text-xs text-black">{t('admin.sent')}</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={300}>
@@ -208,9 +211,9 @@ export const AdminDashboardPage: React.FC = () => {
                 }} 
               />
               <Legend />
-              <Line type="monotone" dataKey="documents" stroke="#64c7cd" strokeWidth={2} name="Documentos" />
-              <Line type="monotone" dataKey="processed" stroke="#a5cc55" strokeWidth={2} name="Procesados" />
-              <Line type="monotone" dataKey="sent" stroke="#eb3089" strokeWidth={2} name="Enviados" />
+              <Line type="monotone" dataKey="documents" stroke="#64c7cd" strokeWidth={2} name={t('admin.documentsLabel')} />
+              <Line type="monotone" dataKey="processed" stroke="#a5cc55" strokeWidth={2} name={t('admin.processed')} />
+              <Line type="monotone" dataKey="sent" stroke="#eb3089" strokeWidth={2} name={t('admin.sent')} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -219,12 +222,12 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-black">Actividad de Usuarios</h3>
-              <p className="text-sm text-black">Últimas 24 horas</p>
+              <h3 className="text-lg font-bold text-black">{t('admin.userActivity')}</h3>
+              <p className="text-sm text-black">{t('admin.last24Hours')}</p>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-[#a5cc55] rounded-full animate-pulse"></div>
-              <span className="text-xs text-black">En tiempo real</span>
+              <span className="text-xs text-black">{t('admin.realTime')}</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={300}>
@@ -252,17 +255,17 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-black">Estado de Documentos</h3>
-              <p className="text-sm text-black">Distribución actual</p>
+              <h3 className="text-lg font-bold text-black">{t('admin.documentStatus')}</h3>
+              <p className="text-sm text-black">{t('admin.currentDistribution')}</p>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={250}>
             <RechartsPieChart>
               <Pie
                 data={[
-                  { name: 'Procesados', value: stats?.processedDocuments || 0, color: STATUS_COLORS.processed },
-                  { name: 'Pendientes', value: stats?.pendingDocuments || 0, color: STATUS_COLORS.pending },
-                  { name: 'Error', value: stats?.errorDocuments || 0, color: STATUS_COLORS.error }
+                  { name: t('admin.processed'), value: stats?.processedDocuments || 0, color: STATUS_COLORS.processed },
+                  { name: t('admin.pending'), value: stats?.pendingDocuments || 0, color: STATUS_COLORS.pending },
+                  { name: t('admin.error'), value: stats?.errorDocuments || 0, color: STATUS_COLORS.error }
                 ]}
                 cx="50%"
                 cy="50%"
@@ -296,12 +299,12 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-black">Métricas del Sistema</h3>
-              <p className="text-sm text-black">Derivadas de estadísticas</p>
+              <h3 className="text-lg font-bold text-black">{t('admin.systemMetrics')}</h3>
+              <p className="text-sm text-black">{t('admin.derivedFromStats')}</p>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-[#a5cc55] rounded-full animate-pulse"></div>
-              <span className="text-xs text-black">Estable</span>
+              <span className="text-xs text-black">{t('admin.stable')}</span>
             </div>
           </div>
           <div className="space-y-4">
@@ -312,10 +315,10 @@ export const AdminDashboardPage: React.FC = () => {
               const errorPct = total ? Math.round(((stats?.errorDocuments || 0) * 100) / total) : 0
               const successRate = analytics?.stats.successRate ?? (total ? Math.round(((total - (stats?.errorDocuments || 0)) * 100) / total) : 0)
               const metrics = [
-                { name: 'Tasa de Éxito', value: successRate },
-                { name: 'Procesados', value: processedPct },
-                { name: 'Pendientes', value: pendingPct },
-                { name: 'Errores', value: errorPct }
+                { name: t('admin.successRate'), value: successRate },
+                { name: t('admin.processed'), value: processedPct },
+                { name: t('admin.pending'), value: pendingPct },
+                { name: t('admin.errors'), value: errorPct }
               ]
               return metrics.map((metric, index) => (
                 <div key={index} className="space-y-2">
@@ -342,12 +345,12 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg border border-[#64c7cd]/40 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-black">Actividad Reciente</h3>
-              <p className="text-sm text-black">Últimas acciones</p>
+              <h3 className="text-lg font-bold text-black">{t('admin.recentActivity')}</h3>
+              <p className="text-sm text-black">{t('admin.lastActions')}</p>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-[#a5cc55] rounded-full animate-pulse"></div>
-              <span className="text-xs text-black">En tiempo real</span>
+              <span className="text-xs text-black">{t('admin.realTime')}</span>
             </div>
           </div>
           <div className="space-y-4">

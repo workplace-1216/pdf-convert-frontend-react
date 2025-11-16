@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Users,
   User,
@@ -42,6 +43,7 @@ interface User {
 }
 
 export const UserManagementPage: React.FC = () => {
+  const { t } = useTranslation()
   const { user: currentUser } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState<'All' | 'Admin' | 'Cliente' | 'Empresa'>('All')
@@ -247,6 +249,25 @@ export const UserManagementPage: React.FC = () => {
       case 'Cliente': return 'text-blue-400 bg-blue-400/20'
       case 'Empresa': return 'text-pink-400 bg-pink-400/20'
       default: return 'text-gray-400 bg-gray-400/20'
+    }
+  }
+
+  // Translation helper functions
+  const translateRole = (role: string) => {
+    switch (role) {
+      case 'Admin': return t('admin.admin')
+      case 'Cliente': return t('admin.client')
+      case 'Empresa': return t('admin.company')
+      default: return role
+    }
+  }
+
+  const translateStatus = (status: string) => {
+    switch (status) {
+      case 'Activo': return t('admin.active')
+      case 'Inactivo': return t('admin.inactive')
+      case 'Pendiente': return t('admin.pending')
+      default: return status
     }
   }
 
@@ -625,18 +646,18 @@ export const UserManagementPage: React.FC = () => {
       {/* Header Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-black">Gestión de Usuarios</h2>
-          <p className="text-xs sm:text-sm text-black">Administrar clientes y permisos ({totalUsers} usuarios)</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-black">{t('admin.userManagement')}</h2>
+          <p className="text-xs sm:text-sm text-black">{t('admin.manageUsersAndPermissions')} ({totalUsers} {t('admin.users')})</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-          <button 
+          <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center justify-center px-4 py-2 text-sm font-medium text-black bg-[#a5cc55] border border-[#a5cc55]/20 rounded-lg hover:bg-[#a5cc55]/80 transition-all duration-300 hover:scale-105"
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            <span>Agregar Admin</span>
+            <span>{t('admin.addAdmin')}</span>
           </button>
-          <button 
+          <button
             onClick={() => {
               fetchCompanies('pending')
               setShowCompanyModal(true)
@@ -644,78 +665,76 @@ export const UserManagementPage: React.FC = () => {
             className="flex items-center justify-center px-4 py-2 text-sm font-medium text-black bg-[#eb3089] border border-[#eb3089]/20 rounded-lg hover:bg-[#eb3089]/80 transition-all duration-300 hover:scale-105"
           >
             <Building className="h-4 w-4 mr-2" />
-            <span>Ver Empresas Pendientes</span>
+            <span>{t('admin.viewPendingCompanies')}</span>
           </button>
-          <button 
+          <button
             onClick={handleExportUsers}
             className="flex items-center justify-center px-4 py-2 text-sm font-medium text-black bg-[#64c7cd] border border-[#64c7cd]/20 rounded-lg hover:bg-[#64c7cd]/80 transition-all duration-300 hover:scale-105"
           >
             <Download className="h-4 w-4 mr-2" />
-            <span>Exportar</span>
+            <span>{t('admin.export')}</span>
           </button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-6">
-        <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-black font-medium mb-1">Total Usuarios</p>
-              <p className="text-xl sm:text-2xl font-bold text-black">{users.length}</p>
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-3 sm:p-4 md:p-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] xs:text-xs sm:text-sm text-black font-medium mb-0.5 sm:mb-1 leading-tight break-words">{t('admin.totalUsers')}</p>
+              <p className="text-lg xs:text-xl sm:text-2xl font-bold text-black">{users.length}</p>
             </div>
-            <div className="p-2 sm:p-3 bg-[#64c7cd] rounded-xl">
-              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-black font-medium mb-1">Usuarios Activos</p>
-              <p className="text-xl sm:text-2xl font-bold text-black">{users.filter(u => u.status === 'Activo').length}</p>
-            </div>
-            <div className="p-2 sm:p-3 bg-[#a5cc55] rounded-xl">
-              <UserCheck className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <div className="p-1.5 xs:p-2 sm:p-3 bg-[#64c7cd] rounded-xl flex-shrink-0">
+              <Users className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6 text-white" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-black font-medium mb-1">Inactivos</p>
-              <p className="text-xl sm:text-2xl font-bold text-black">{users.filter(u => u.status === 'Inactivo').length}</p>
+        <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-3 sm:p-4 md:p-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] xs:text-xs sm:text-sm text-black font-medium mb-0.5 sm:mb-1 leading-tight break-words">{t('admin.activeUsers')}</p>
+              <p className="text-lg xs:text-xl sm:text-2xl font-bold text-black">{users.filter(u => u.status === 'Activo').length}</p>
             </div>
-            <div className="p-2 sm:p-3 bg-[#eb3089] rounded-xl">
-              <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-            </div>
-          </div>
-        </div>
-
-        <div 
-          className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-4 sm:p-6 transition-all duration-300"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-black font-medium mb-1">Empresas Pendientes</p>
-              <p className="text-xl sm:text-2xl font-bold text-black">{pendingCompanyCount}</p>
-            </div>
-            <div className="p-2 sm:p-3 bg-[#eb3089] rounded-xl">
-              <Building className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <div className="p-1.5 xs:p-2 sm:p-3 bg-[#a5cc55] rounded-xl flex-shrink-0">
+              <UserCheck className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6 text-white" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-black font-medium mb-1">Administradores</p>
-              <p className="text-xl sm:text-2xl font-bold text-black">{users.filter(u => u.role === 'Admin').length}</p>
+        <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-3 sm:p-4 md:p-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] xs:text-xs sm:text-sm text-black font-medium mb-0.5 sm:mb-1 leading-tight break-words">{t('admin.inactive')}</p>
+              <p className="text-lg xs:text-xl sm:text-2xl font-bold text-black">{users.filter(u => u.status === 'Inactivo').length}</p>
             </div>
-            <div className="p-2 sm:p-3 bg-[#64c7cd] rounded-xl">
-              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <div className="p-1.5 xs:p-2 sm:p-3 bg-[#eb3089] rounded-xl flex-shrink-0">
+              <Clock className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6 text-white" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-3 sm:p-4 md:p-6 transition-all duration-300">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] xs:text-xs sm:text-sm text-black font-medium mb-0.5 sm:mb-1 leading-tight break-words">{t('admin.pendingCompanies')}</p>
+              <p className="text-lg xs:text-xl sm:text-2xl font-bold text-black">{pendingCompanyCount}</p>
+            </div>
+            <div className="p-1.5 xs:p-2 sm:p-3 bg-[#eb3089] rounded-xl flex-shrink-0">
+              <Building className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6 text-white" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-3 sm:p-4 md:p-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] xs:text-xs sm:text-sm text-black font-medium mb-0.5 sm:mb-1 leading-tight break-words">{t('admin.administrators')}</p>
+              <p className="text-lg xs:text-xl sm:text-2xl font-bold text-black">{users.filter(u => u.role === 'Admin').length}</p>
+            </div>
+            <div className="p-1.5 xs:p-2 sm:p-3 bg-[#64c7cd] rounded-xl flex-shrink-0">
+              <Shield className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6 text-white" />
             </div>
           </div>
         </div>
@@ -730,7 +749,7 @@ export const UserManagementPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-black" />
               <input
                 type="text"
-                placeholder="Buscar usuarios..."
+                placeholder={t('admin.searchUsers')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300"
@@ -744,12 +763,12 @@ export const UserManagementPage: React.FC = () => {
               value={filterRole}
               onChange={(value) => setFilterRole(value as 'All' | 'Admin' | 'Cliente' | 'Empresa')}
               options={[
-                { value: 'All', label: 'Todos los roles' },
-                { value: 'Admin', label: 'Administradores' },
-                { value: 'Cliente', label: 'Clientes' },
-                { value: 'Empresa', label: 'Empresas' }
+                { value: 'All', label: t('admin.allRoles') },
+                { value: 'Admin', label: t('admin.admins') },
+                { value: 'Cliente', label: t('admin.clients') },
+                { value: 'Empresa', label: t('admin.companies') }
               ]}
-              placeholder="Seleccionar rol"
+              placeholder={t('admin.selectRole')}
               isOpen={showRoleDropdown}
               onToggle={() => {
                 setShowRoleDropdown(!showRoleDropdown)
@@ -764,12 +783,12 @@ export const UserManagementPage: React.FC = () => {
               value={filterStatus}
               onChange={(value) => setFilterStatus(value as 'All' | 'Activo' | 'Inactivo' | 'Pendiente')}
               options={[
-                { value: 'All', label: 'Todos los estados' },
-                { value: 'Activo', label: 'Activos' },
-                { value: 'Inactivo', label: 'Inactivos' },
-                { value: 'Pendiente', label: 'Pendientes' }
+                { value: 'All', label: t('admin.allStatuses') },
+                { value: 'Activo', label: t('admin.actives') },
+                { value: 'Inactivo', label: t('admin.inactives') },
+                { value: 'Pendiente', label: t('admin.pendings') }
               ]}
-              placeholder="Seleccionar estado"
+              placeholder={t('admin.selectStatus')}
               isOpen={showStatusDropdown}
               onToggle={() => {
                 setShowStatusDropdown(!showStatusDropdown)
@@ -787,12 +806,12 @@ export const UserManagementPage: React.FC = () => {
           <table className="w-full">
             <thead className="bg-[#64c7cd]/15 border-b border-[#64c7cd]/30">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Usuario</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Rol</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Estado</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Último Acceso</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Documentos</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-black">Acciones</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.user')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.role')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.status')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.lastAccess')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.documents')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-black">{t('admin.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
@@ -801,8 +820,8 @@ export const UserManagementPage: React.FC = () => {
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center justify-center">
                       <User className="h-12 w-12 text-gray-400 mb-4" />
-                      <p className="text-lg font-medium text-black mb-1">No hay usuarios</p>
-                      <p className="text-sm text-black/60">No se encontraron usuarios con los filtros aplicados</p>
+                      <p className="text-lg font-medium text-black mb-1">{t('admin.noUsers')}</p>
+                      <p className="text-sm text-black/60">{t('admin.noUsersFound')}</p>
                     </div>
                   </td>
                 </tr>
@@ -824,13 +843,13 @@ export const UserManagementPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
-                      {user.role}
+                      {translateRole(user.role)}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
                       {getStatusIcon(user.status)}
-                      <span className="ml-1">{user.status}</span>
+                      <span className="ml-1">{translateStatus(user.status)}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -845,7 +864,7 @@ export const UserManagementPage: React.FC = () => {
                       <button 
                         onClick={() => handleViewUser(user)}
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                        title="Ver detalles"
+                        title={t('admin.viewDetails')}
                       >
                         <Eye className="h-4 w-4 text-black hover:text-black" />
                       </button>
@@ -854,7 +873,7 @@ export const UserManagementPage: React.FC = () => {
                         <button 
                           onClick={() => handleEditUser(user)}
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                          title="Editar usuario"
+                          title={t('admin.editUser')}
                         >
                           <Edit className="h-4 w-4 text-black hover:text-black" />
                         </button>
@@ -862,7 +881,7 @@ export const UserManagementPage: React.FC = () => {
                       <button 
                         onClick={() => handleDeleteUser(user)}
                         className="p-2 hover:bg-red-500/20 rounded-lg transition-colors duration-200 group"
-                        title="Eliminar usuario"
+                        title={t('admin.deleteUserAction')}
                       >
                         <Trash2 className="h-4 w-4 text-black hover:text-red-600 group-hover:text-red-600" />
                       </button>
@@ -881,8 +900,8 @@ export const UserManagementPage: React.FC = () => {
             <div className="p-12 text-center">
               <div className="flex flex-col items-center justify-center">
                 <User className="h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-lg font-medium text-black mb-1">No hay usuarios</p>
-                <p className="text-sm text-black/60">No se encontraron usuarios con los filtros aplicados</p>
+                <p className="text-lg font-medium text-black mb-1">{t('admin.noUsers')}</p>
+                <p className="text-sm text-black/60">{t('admin.noUsersFound')}</p>
               </div>
             </div>
           ) : (
@@ -904,16 +923,16 @@ export const UserManagementPage: React.FC = () => {
                   <button 
                     onClick={() => handleViewUser(user)}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                    title="Ver detalles"
+                    title={t('admin.viewDetails')}
                   >
                     <Eye className="h-4 w-4 text-black hover:text-black" />
                   </button>
                   {/* Only show edit button for Admin users */}
                   {user.role === 'Admin' && (
-                    <button 
+                    <button
                       onClick={() => handleEditUser(user)}
                       className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                      title="Editar usuario"
+                      title={t('admin.editUser')}
                     >
                       <Edit className="h-4 w-4 text-black hover:text-black" />
                     </button>
@@ -921,7 +940,7 @@ export const UserManagementPage: React.FC = () => {
                   <button 
                     onClick={() => handleDeleteUser(user)}
                     className="p-2 hover:bg-red-500/20 rounded-lg transition-colors duration-200 group"
-                    title="Eliminar usuario"
+                    title={t('admin.deleteUserAction')}
                   >
                     <Trash2 className="h-4 w-4 text-black hover:text-red-600 group-hover:text-red-600" />
                   </button>
@@ -929,24 +948,24 @@ export const UserManagementPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <p className="text-black/60 mb-1">Rol</p>
+                  <p className="text-black/60 mb-1">{t('admin.role')}</p>
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
-                    {user.role}
+                    {translateRole(user.role)}
                   </span>
                 </div>
                 <div>
-                  <p className="text-black/60 mb-1">Estado</p>
+                  <p className="text-black/60 mb-1">{t('admin.status')}</p>
                   <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
                     {getStatusIcon(user.status)}
-                    <span className="ml-1">{user.status}</span>
+                    <span className="ml-1">{translateStatus(user.status)}</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-black/60 mb-1">Último Acceso</p>
+                  <p className="text-black/60 mb-1">{t('admin.lastAccess')}</p>
                   <p className="text-black">{new Date(user.lastLogin).toLocaleDateString('es-MX')}</p>
                 </div>
                 <div>
-                  <p className="text-black/60 mb-1">Documentos</p>
+                  <p className="text-black/60 mb-1">{t('admin.documents')}</p>
                   <p className="text-black font-medium">{user.documentsCount}</p>
                 </div>
               </div>
@@ -960,7 +979,7 @@ export const UserManagementPage: React.FC = () => {
       {totalUsers > pageSize && (
         <div className="flex items-center justify-between mt-6 bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 p-4">
           <div className="text-sm text-black">
-            Mostrando {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, totalUsers)} de {totalUsers} usuarios
+            {t('admin.showing')} {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, totalUsers)} {t('admin.of')} {totalUsers} {t('admin.users')}
           </div>
           <div className="flex items-center space-x-2">
             <button
@@ -973,7 +992,7 @@ export const UserManagementPage: React.FC = () => {
               }`}
             >
               <ChevronLeft className="h-4 w-4" />
-              <span>Anterior</span>
+              <span>{t('admin.previous')}</span>
             </button>
             <div className="flex items-center space-x-1">
               {Array.from({ length: Math.min(5, Math.ceil(totalUsers / pageSize)) }, (_, i) => {
@@ -1014,7 +1033,7 @@ export const UserManagementPage: React.FC = () => {
                   : 'bg-[#64c7cd] text-white hover:bg-[#64c7cd]/80 hover:scale-105'
               }`}
             >
-              <span>Siguiente</span>
+              <span>{t('admin.next')}</span>
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
@@ -1046,30 +1065,30 @@ export const UserManagementPage: React.FC = () => {
                 <div className="p-2 bg-[#a5cc55] rounded-xl">
                   <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 text-black" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-black">Agregar Nuevo Admin</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-black">{t('admin.addNewAdmin')}</h3>
               </div>
-              <p className="text-xs sm:text-sm text-black">Complete la información del usuario</p>
+              <p className="text-xs sm:text-sm text-black">{t('admin.completeUserInfo')}</p>
             </div>
 
             {/* Form */}
             <div className="space-y-3 sm:space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">Nombre Completo</label>
+                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">{t('admin.fullName')}</label>
                 <input
                   type="text"
                   value={newUser.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-xl text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 text-sm sm:text-base"
-                  placeholder="Ingrese el nombre completo"
+                  placeholder={t('admin.enterFullName')}
                 />
               </div>
 
               {/* Email */}
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">
-                  Correo Electrónico
-                  <span className="text-xs text-red-500 ml-1">(debe terminar con @admin.com)</span>
+                  {t('admin.email')}
+                  <span className="text-xs text-red-500 ml-1">{t('admin.mustEndWithAdmin')}</span>
                 </label>
                 <input
                   type="email"
@@ -1078,13 +1097,13 @@ export const UserManagementPage: React.FC = () => {
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-xl text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 text-sm sm:text-base"
                   placeholder="admin@admin.com"
                 />
-                <p className="text-xs text-gray-500 mt-1">Ejemplo: admin@admin.com, soporte@admin.com</p>
+                <p className="text-xs text-gray-500 mt-1">{t('admin.exampleEmail')}</p>
               </div>
 
               {/* WhatsApp Number */}
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">
-                  WhatsApp (Opcional)
+                  {t('admin.whatsappOptional')}
                 </label>
                 <div className="relative">
                   <MessageCircle className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#25D366] z-10" />
@@ -1103,8 +1122,8 @@ export const UserManagementPage: React.FC = () => {
                     dropdownClass="!bg-white !border-2 !border-gray-200 !rounded-xl !shadow-lg"
                     searchClass="!bg-white !border-gray-200 !rounded-lg"
                     enableSearch
-                    searchPlaceholder="Buscar país"
-                    placeholder="Número con código de país"
+                    searchPlaceholder={t('admin.searchCountry')}
+                    placeholder={t('admin.numberWithCountryCode')}
                     countryCodeEditable={true}
                   />
                 </div>
@@ -1112,25 +1131,25 @@ export const UserManagementPage: React.FC = () => {
 
               {/* Password */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">Contraseña</label>
+                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">{t('admin.password')}</label>
                 <input
                   type="password"
                   value={newUser.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-xl text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 text-sm sm:text-base"
-                  placeholder="Mínimo 8 caracteres"
+                  placeholder={t('admin.minimum8Characters')}
                 />
               </div>
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">Confirmar Contraseña</label>
+                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">{t('admin.confirmPassword')}</label>
                 <input
                   type="password"
                   value={newUser.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-xl text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 text-sm sm:text-base"
-                  placeholder="Repita la contraseña"
+                  placeholder={t('admin.repeatPassword')}
                 />
               </div>
             </div>
@@ -1141,14 +1160,14 @@ export const UserManagementPage: React.FC = () => {
                 onClick={() => setShowAddModal(false)}
                 className="px-4 py-2 text-sm font-medium text-black transition-colors duration-200 order-2 sm:order-1"
               >
-                Cancelar
+                {t('admin.cancel')}
               </button>
               <button
                 onClick={handleAddUser}
                 disabled={isCreatingAdmin}
                 className={`px-4 sm:px-6 py-2 text-sm font-medium text-white bg-[#a5cc55] rounded-xl hover:bg-[#a5cc55]/80 transition-all duration-300 hover:scale-105 shadow-lg order-1 sm:order-2 ${isCreatingAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                {isCreatingAdmin ? 'Creando...' : 'Crear Admin'}
+                {isCreatingAdmin ? t('admin.creating') : t('admin.createAdmin')}
               </button>
             </div>
           </div>
@@ -1178,9 +1197,9 @@ export const UserManagementPage: React.FC = () => {
                 <div className="p-2 bg-[#eb3089] rounded-xl">
                   <Building className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-black">Empresas Pendientes de Aprobación</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-black">{t('admin.pendingApprovalCompanies')}</h3>
               </div>
-              <p className="text-xs sm:text-sm text-black/60">Empresas que esperan aprobación del administrador</p>
+              <p className="text-xs sm:text-sm text-black/60">{t('admin.companiesAwaitingApproval')}</p>
             </div>
 
             {/* Companies Table */}
@@ -1196,19 +1215,19 @@ export const UserManagementPage: React.FC = () => {
               <table className="w-full">
                 <thead className="bg-[#eb3089]/10 border-b border-[#eb3089]/30">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">Empresa</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">RFC</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">Email</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">WhatsApp</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">Fecha</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">Acciones</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">{t('admin.company')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">{t('admin.rfc')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">{t('admin.email')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">{t('admin.whatsapp')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">{t('admin.date')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-black">{t('admin.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {companies.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="px-4 py-8 text-center text-black/60 text-sm">
-                        No hay empresas pendientes de aprobación
+                        {t('admin.noPendingCompanies')}
                       </td>
                     </tr>
                   ) : (
@@ -1242,7 +1261,7 @@ export const UserManagementPage: React.FC = () => {
                               disabled={processingCompany}
                               className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              Aprobar
+                              {t('admin.approve')}
                             </button>
                             <button
                               onClick={() => {
@@ -1252,7 +1271,7 @@ export const UserManagementPage: React.FC = () => {
                               disabled={processingCompany}
                               className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              Rechazar
+                              {t('admin.reject')}
                             </button>
                           </div>
                         </td>
@@ -1269,7 +1288,7 @@ export const UserManagementPage: React.FC = () => {
                 onClick={() => setShowCompanyModal(false)}
                 className="px-6 py-2 text-sm font-medium text-white bg-[#64c7cd] rounded-xl hover:bg-[#64c7cd]/80 transition-all duration-300 hover:scale-105 shadow-lg"
               >
-                Cerrar
+                {t('admin.close')}
               </button>
             </div>
           </div>
@@ -1304,26 +1323,26 @@ export const UserManagementPage: React.FC = () => {
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
               
-              <h3 className="text-xl font-bold text-black mb-2">Aprobar Empresa</h3>
-              
+              <h3 className="text-xl font-bold text-black mb-2">{t('admin.approveCompanyTitle')}</h3>
+
               <div className="mb-6 text-sm text-black/70">
                 <p className="mb-3">
-                  ¿Está seguro de aprobar la empresa <span className="font-semibold text-black">"{selectedCompany.name}"</span>?
+                  {t('admin.sureToApprove')} <span className="font-semibold text-black">"{selectedCompany.name}"</span>?
                 </p>
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-left">
-                  <p className="font-semibold text-blue-900 mb-2">Al aprobar:</p>
+                  <p className="font-semibold text-blue-900 mb-2">{t('admin.byApproving')}</p>
                   <ul className="space-y-2 text-blue-800">
                     <li className="flex items-start space-x-2">
                       <span className="text-blue-600 mt-0.5">•</span>
-                      <span>Se creará una cuenta de usuario para la empresa</span>
+                      <span>{t('admin.companyAccountWillBeCreated')}</span>
                     </li>
                     <li className="flex items-start space-x-2">
                       <span className="text-blue-600 mt-0.5">•</span>
-                      <span>La empresa podrá iniciar sesión inmediatamente</span>
+                      <span>{t('admin.companyCanLoginImmediately')}</span>
                     </li>
                     <li className="flex items-start space-x-2">
                       <span className="text-blue-600 mt-0.5">•</span>
-                      <span>Podrá recibir documentos de clientes</span>
+                      <span>{t('admin.canReceiveDocuments')}</span>
                     </li>
                   </ul>
                 </div>
@@ -1338,14 +1357,14 @@ export const UserManagementPage: React.FC = () => {
                   disabled={processingCompany}
                   className="flex-1 px-4 py-2 text-sm font-medium text-black bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition-all duration-300 disabled:opacity-50"
                 >
-                  Cancelar
+                  {t('admin.cancel')}
                 </button>
                 <button
                   onClick={handleApproveCompany}
                   disabled={processingCompany}
                   className="flex-1 px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-xl hover:bg-green-600 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
-                  {processingCompany ? 'Aprobando...' : 'Confirmar Aprobación'}
+                  {processingCompany ? t('admin.approving') : t('admin.confirmApproval')}
                 </button>
               </div>
             </div>
@@ -1380,25 +1399,25 @@ export const UserManagementPage: React.FC = () => {
                 <div className="p-2 bg-red-100 rounded-xl">
                   <AlertCircle className="h-5 w-5 text-red-600" />
                 </div>
-                <h3 className="text-lg font-bold text-black">Rechazar Empresa</h3>
+                <h3 className="text-lg font-bold text-black">{t('admin.rejectCompanyTitle')}</h3>
               </div>
               <p className="text-sm text-black/60">
-                Está a punto de rechazar la empresa: <span className="font-semibold text-black">{selectedCompany.name}</span>
+                {t('admin.aboutToReject')} <span className="font-semibold text-black">{selectedCompany.name}</span>
               </p>
             </div>
 
             <div className="mb-6">
               <label className="block text-sm font-semibold text-black mb-2">
-                Razón del Rechazo *
+                {t('admin.rejectionReason')}
               </label>
               <textarea
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Explique el motivo del rechazo..."
+                placeholder={t('admin.explainRejectionReason')}
                 rows={4}
                 className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all duration-300 resize-none"
               />
-              <p className="text-xs text-gray-500 mt-1">Esta razón será almacenada en el sistema</p>
+              <p className="text-xs text-gray-500 mt-1">{t('admin.reasonWillBeStored')}</p>
             </div>
 
             <div className="flex items-center space-x-3">
@@ -1409,14 +1428,14 @@ export const UserManagementPage: React.FC = () => {
                 }}
                 className="flex-1 px-4 py-2 text-sm font-medium text-black bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition-all duration-300"
               >
-                Cancelar
+                {t('admin.cancel')}
               </button>
               <button
                 onClick={handleRejectCompany}
                 disabled={processingCompany || !rejectReason.trim()}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-xl hover:bg-red-600 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                {processingCompany ? 'Rechazando...' : 'Confirmar Rechazo'}
+                {processingCompany ? t('admin.rejecting') : t('admin.confirmRejection')}
               </button>
             </div>
           </div>
@@ -1514,35 +1533,35 @@ export const UserManagementPage: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="p-3 bg-white rounded-xl border border-[#64c7cd]/20 shadow-sm">
-                  <p className="text-xs text-black/60 mb-1">Rol</p>
+                  <p className="text-xs text-black/60 mb-1">{t('admin.role')}</p>
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(selectedUser.role)}`}>
-                    {selectedUser.role}
+                    {translateRole(selectedUser.role)}
                   </span>
                 </div>
                 <div className="p-3 bg-white rounded-xl border border-[#64c7cd]/20 shadow-sm">
-                  <p className="text-xs text-black/60 mb-1">Estado</p>
+                  <p className="text-xs text-black/60 mb-1">{t('admin.status')}</p>
                   <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedUser.status)}`}>
                     {getStatusIcon(selectedUser.status)}
-                    <span className="ml-1">{selectedUser.status}</span>
+                    <span className="ml-1">{translateStatus(selectedUser.status)}</span>
                   </div>
                 </div>
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#64c7cd]/20 shadow-sm">
-                <p className="text-xs text-black/60 mb-1">Último Acceso</p>
+                <p className="text-xs text-black/60 mb-1">{t('admin.lastAccess')}</p>
                 <p className="text-sm text-black">{new Date(selectedUser.lastLogin).toLocaleString('es-MX')}</p>
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#64c7cd]/20 shadow-sm">
-                <p className="text-xs text-black/60 mb-1">Documentos Procesados</p>
+                <p className="text-xs text-black/60 mb-1">{t('admin.processedDocuments')}</p>
                 <p className="text-lg font-semibold text-black">{selectedUser.documentsCount}</p>
               </div>
 
               {/* RFC field for Cliente users only */}
               {selectedUser.role === 'Cliente' && (
                 <div className="p-3 bg-white rounded-xl border border-[#64c7cd]/20 shadow-sm">
-                  <p className="text-xs text-black/60 mb-1">RFC</p>
-                  <p className="text-sm font-medium text-black">{selectedUser.rfc || 'No registrado'}</p>
+                  <p className="text-xs text-black/60 mb-1">{t('admin.rfc')}</p>
+                  <p className="text-sm font-medium text-black">{selectedUser.rfc || t('admin.notRegistered')}</p>
                 </div>
               )}
             </div>
@@ -1552,7 +1571,7 @@ export const UserManagementPage: React.FC = () => {
                 onClick={() => setShowViewModal(false)}
                 className="w-full sm:w-auto px-4 sm:px-6 py-2 text-sm font-medium text-white bg-[#64c7cd] rounded-xl hover:bg-[#64c7cd]/80 transition-all duration-300 hover:scale-105 shadow-lg"
               >
-                Cerrar
+                {t('admin.close')}
               </button>
             </div>
           </div>
@@ -1582,14 +1601,14 @@ export const UserManagementPage: React.FC = () => {
                 <div className="p-2 bg-[#eb3089] rounded-xl">
                   <Edit className="h-4 w-4 sm:h-5 sm:w-5 text-black" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-black">Editar Usuario</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-black">{t('admin.editUserTitle')}</h3>
               </div>
-              <p className="text-xs sm:text-sm text-black">Modificar información del usuario</p>
+              <p className="text-xs sm:text-sm text-black">{t('admin.modifyUserInfo')}</p>
             </div>
 
             <div className="space-y-3 sm:space-y-4">
               <div className="p-3 bg-white rounded-xl border border-[#64c7cd]/20 shadow-sm">
-                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">Nombre Completo</label>
+                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">{t('admin.fullName')}</label>
                 <input
                   type="text"
                   defaultValue={selectedUser.name}
@@ -1598,7 +1617,7 @@ export const UserManagementPage: React.FC = () => {
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#64c7cd]/20 shadow-sm">
-                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">Correo Electrónico</label>
+                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">{t('admin.email')}</label>
                 <input
                   type="email"
                   defaultValue={selectedUser.email}
@@ -1607,22 +1626,22 @@ export const UserManagementPage: React.FC = () => {
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#64c7cd]/20 shadow-sm">
-                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">Estado</label>
+                <label className="block text-xs sm:text-sm font-medium text-black mb-1 sm:mb-2">{t('admin.status')}</label>
                 <CustomDropdown
                   value={selectedUser.status}
                   onChange={(value) => {
                     setSelectedUser(prev => prev ? { ...prev, status: value as 'Activo' | 'Inactivo' } : null)
                   }}
                   options={[
-                    { value: 'Activo', label: 'Activo' },
-                    { value: 'Inactivo', label: 'Inactivo' }
+                    { value: 'Activo', label: t('admin.actives') },
+                    { value: 'Inactivo', label: t('admin.inactives') }
                   ]}
-                  placeholder="Seleccionar estado"
+                  placeholder={t('admin.selectStatus')}
                   isOpen={showEditStatusDropdown}
                   onToggle={() => setShowEditStatusDropdown(!showEditStatusDropdown)}
                 />
                 <p className="text-xs text-red-500 mt-1 font-medium">
-                  ⚠️ Si cambia a "Inactivo", el usuario NO podrá iniciar sesión
+                  {t('admin.inactiveUserWarning')}
                 </p>
               </div>
             </div>
@@ -1632,13 +1651,13 @@ export const UserManagementPage: React.FC = () => {
                 onClick={() => setShowEditModal(false)}
                 className="px-4 py-2 text-sm font-medium text-black bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-sm order-2 sm:order-1"
               >
-                Cancelar
+                {t('admin.cancel')}
               </button>
               <button
                 onClick={handleSaveUserChanges}
                 className="px-4 sm:px-6 py-2 text-sm font-medium text-white bg-[#eb3089] rounded-xl hover:bg-[#eb3089]/80 transition-all duration-300 hover:scale-105 shadow-lg order-1 sm:order-2"
               >
-                Guardar Cambios
+                {t('admin.saveChanges')}
               </button>
             </div>
           </div>
@@ -1668,18 +1687,18 @@ export const UserManagementPage: React.FC = () => {
                 <div className="p-2 bg-[#eb3089] rounded-xl">
                   <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 text-black" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-black">Confirmar Eliminación</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-black">{t('admin.confirmDeletionTitle')}</h3>
               </div>
-              <p className="text-xs sm:text-sm text-black">Esta acción no se puede deshacer</p>
+              <p className="text-xs sm:text-sm text-black">{t('admin.actionCannotBeUndone')}</p>
             </div>
 
             <div className="space-y-3 sm:space-y-4">
               <div className="p-4 bg-[#eb3089]/10 border border-[#eb3089]/40 rounded-xl shadow-sm">
                 <p className="text-sm text-black mb-2">
-                  ¿Estás seguro de que quieres eliminar al usuario <span className="font-semibold text-[#eb3089]">{selectedUser.name}</span>?
+                  {t('admin.sureToDeleteUser')} <span className="font-semibold text-[#eb3089]">{selectedUser.name}</span>?
                 </p>
                 <p className="text-xs text-black">
-                  Se eliminarán todos los datos asociados con este usuario, incluyendo documentos y historial.
+                  {t('admin.allDataWillBeDeleted')}
                 </p>
               </div>
 
@@ -1693,7 +1712,7 @@ export const UserManagementPage: React.FC = () => {
                   <div>
                     <p className="text-sm font-medium text-black">{selectedUser.name}</p>
                     <p className="text-xs text-black">{selectedUser.email}</p>
-                    <p className="text-xs text-black">{selectedUser.role} • {selectedUser.status}</p>
+                    <p className="text-xs text-black">{translateRole(selectedUser.role)} • {translateStatus(selectedUser.status)}</p>
                   </div>
                 </div>
               </div>
@@ -1704,13 +1723,13 @@ export const UserManagementPage: React.FC = () => {
                 onClick={() => setShowDeleteModal(false)}
                 className="px-4 sm:px-6 py-2 text-sm font-medium text-black bg-white border border-[#64c7cd]/40 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-sm order-2 sm:order-1"
               >
-                Cancelar
+                {t('admin.cancel')}
               </button>
               <button
                 onClick={confirmDeleteUser}
                 className="px-4 sm:px-6 py-2 text-sm font-medium text-white bg-[#eb3089] rounded-xl hover:bg-[#eb3089]/80 transition-all duration-300 hover:scale-105 shadow-lg order-1 sm:order-2"
               >
-                Eliminar Usuario
+                {t('admin.deleteUserButton')}
               </button>
             </div>
           </div>

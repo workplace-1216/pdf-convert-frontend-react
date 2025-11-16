@@ -77,7 +77,7 @@ export const CompanyLayout: React.FC<CompanyLayoutProps> = ({ children }) => {
         }`}
       >
         {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200 flex-shrink-0">
+        <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-[#eb3089] rounded-xl">
               <Building className="h-5 w-5 text-white" />
@@ -146,24 +146,29 @@ export const CompanyLayout: React.FC<CompanyLayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 lg:ml-72">
         {/* Top Header */}
-        <header className="fixed top-0 right-0 left-0 lg:left-72 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 z-30">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
-          >
-            <Menu className="h-6 w-6 text-black" />
-          </button>
-
-          <div className="flex-1 lg:flex-none" />
-
-          <div className="flex items-center space-x-4">
-            <LanguageSwitcher />
-            <CompanyNotificationBell />
+        <header className="fixed top-0 right-0 left-0 lg:left-72 bg-[#eb3089] border-b border-[#eb3089]/30 p-4 pr-20 z-30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 hover:bg-white/30 rounded-lg transition-all duration-300"
+              >
+                <Menu className="h-5 w-5 text-white" />
+              </button>
+              <div>
+                <h2 className="text-xl font-bold text-white">{t('company.companyDashboard')}</h2>
+                <p className="text-sm text-white/90">{t('admin.integralManagementSystem')}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <LanguageSwitcher />
+              <CompanyNotificationBell />
+            </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="pt-16 min-h-screen overflow-auto">
+        <main className="pt-20 min-h-screen overflow-auto">
           {children}
         </main>
       </div>

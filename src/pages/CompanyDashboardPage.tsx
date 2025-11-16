@@ -217,7 +217,7 @@ export const CompanyDashboardPage: React.FC = () => {
 
   return (
     <>
-    <div className="p-6">
+    <div className="p-6 px-20">
         {/* Charts Section */}
         <div className="bg-white rounded-2xl shadow-md border border-[#64c7cd]/30 p-6 mb-6">
           <div className="flex items-center justify-between mb-6">

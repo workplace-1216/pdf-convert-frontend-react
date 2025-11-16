@@ -110,7 +110,7 @@ export const CompanyNotificationBell: React.FC = () => {
         onClick={() => setShowDropdown(!showDropdown)}
         className="relative p-2 hover:bg-[#eb3089]/20 rounded-lg transition-all duration-300"
       >
-        <Bell className="h-5 w-5 text-black" />
+        <Bell className="h-5 w-5 text-white" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-[#eb3089] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -122,7 +122,7 @@ export const CompanyNotificationBell: React.FC = () => {
       {showDropdown && (
         <>
           {/* Backdrop */}
-          <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setShowDropdown(false)} />
+          <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
 
           {/* Notification Modal Panel - Positioned relative to bell icon */}
           <div 

@@ -133,7 +133,7 @@ export const CompanyNotificationsPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 px-20">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">

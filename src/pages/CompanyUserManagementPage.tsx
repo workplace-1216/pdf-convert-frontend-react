@@ -199,7 +199,7 @@ export const CompanyUserManagementPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 px-20">
       {/* Success Message */}
       {successMessage && (
         <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center space-x-3 animate-fade-in">

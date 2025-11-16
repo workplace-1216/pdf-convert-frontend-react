@@ -167,13 +167,13 @@ export const AdminNotificationsPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 px-20">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-black">{t('admin.notifications')}</h1>
         <button
           onClick={clearAll}
           disabled={clearing || notifications.length === 0}
-          className={`mr-[60px] px-3 py-2 text-xs font-semibold rounded-lg ${notifications.length === 0 ? 'bg-gray-300 text-white' : 'bg-[#eb3089] text-white hover:bg-[#d3287a]'}`}
+          className={`px-3 py-2 text-xs font-semibold rounded-lg ${notifications.length === 0 ? 'bg-gray-300 text-white' : 'bg-[#eb3089] text-white hover:bg-[#d3287a]'}`}
         >
           {t('admin.clearAll')}
         </button>

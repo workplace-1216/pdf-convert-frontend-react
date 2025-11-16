@@ -7,7 +7,8 @@ import {
   Home,
   UserCheck,
   PieChart,
-  MoreHorizontal
+  MoreHorizontal,
+  Bell
 } from 'lucide-react'
 import { AdminNotificationBell } from './AdminNotificationBell'
 import LanguageSwitcher from './LanguageSwitcher'
@@ -26,11 +27,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { id: 'dashboard', label: t('admin.dashboard'), icon: Home, path: '/admin' },
     { id: 'users', label: t('admin.userManagement'), icon: UserCheck, path: '/admin/users' },
     // { id: 'documents', label: t('admin.documentManagement'), icon: FileCheck, path: '/admin/documents' },
-    { id: 'reports', label: t('admin.reportsAndAnalytics'), icon: PieChart, path: '/admin/reports' }
+    { id: 'reports', label: t('admin.reportsAndAnalytics'), icon: PieChart, path: '/admin/reports' },
+    { id: 'notifications', label: t('admin.notifications'), icon: Bell, path: '/admin/notifications' }
   ]
 
   return (
-    <div className="h-screen bg-gray-50 relative overflow-hidden">
+    <div className="h-screen bg-gray-50 relative overflow-hidden flex">
       {/* Advanced Animated Background (disabled for white theme) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none hidden">
         {/* Floating Orbs */}
@@ -175,23 +177,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col relative z-10">
+      <div className="flex-1 flex flex-col relative z-10 overflow-auto">
         {/* Header */}
-        <div className={`fixed top-0 right-0 bg-[#64c7cd] border-b border-[#64c7cd]/30 p-4 z-20 transition-all duration-300 ${
-          sidebarOpen ? 'left-0 lg:left-64' : 'left-0 lg:left-[91px]'
-        }`}>
+        <div className="bg-[#64c7cd] border-b border-[#64c7cd]/30 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="hidden lg:block p-2 hover:bg-white/30 rounded-lg transition-all duration-300"
-                title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-              >
-                <MoreHorizontal className="h-5 w-5 text-black" />
-              </button>
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 hover:bg-white/30 rounded-lg transition-all duration-300"
+                className="p-2 hover:bg-white/30 rounded-lg transition-all duration-300"
               >
                 <MoreHorizontal className="h-5 w-5 text-black" />
               </button>
@@ -201,7 +194,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </div>
             </div>
             {/* Language Switcher and Notification Bell */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <LanguageSwitcher />
               <AdminNotificationBell />
             </div>
@@ -209,9 +202,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </div>
 
         {/* Page Content */}
-        <div className={`flex-1 overflow-y-auto pt-20 transition-all duration-300 ${
-          sidebarOpen ? 'lg:ml-64' : 'lg:ml-[91px]'
-        }`}>
+        <div className="flex-1 overflow-y-auto">
           {children}
         </div>
       </div>

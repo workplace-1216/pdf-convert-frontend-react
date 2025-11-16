@@ -290,7 +290,7 @@ export const CompanyDocumentsPage: React.FC = () => {
                       RFC
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-black uppercase tracking-wider">
-                      {t('company.receivedDate')}
+                      {t('company.dateReceived')}
                     </th>
                     <th className="px-6 py-4 text-right text-xs font-semibold text-black uppercase tracking-wider">
                       {t('company.actions')}

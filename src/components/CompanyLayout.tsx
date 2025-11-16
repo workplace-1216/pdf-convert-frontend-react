@@ -72,7 +72,7 @@ export const CompanyLayout: React.FC<CompanyLayoutProps> = ({ children }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-68 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:transform-none flex flex-col ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:transform-none flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -144,9 +144,9 @@ export const CompanyLayout: React.FC<CompanyLayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-68">
+      <div className="flex-1 lg:ml-72">
         {/* Top Header */}
-        <header className="fixed top-0 right-0 left-0 lg:left-68 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 z-30">
+        <header className="fixed top-0 right-0 left-0 lg:left-72 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 z-30">
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"

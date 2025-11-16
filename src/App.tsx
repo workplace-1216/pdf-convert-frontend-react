@@ -9,10 +9,13 @@ import { DocumentManagementPage } from './pages/DocumentManagementPage'
 import { ReportsAnalyticsPage } from './pages/ReportsAnalyticsPage'
 import { ClientReadyDocumentsPage } from './pages/ClientReadyDocumentsPageNew'
 import { CompanyDashboardPage } from './pages/CompanyDashboardPage'
+import { CompanyDocumentsPage } from './pages/CompanyDocumentsPage'
 import { CompanyNotificationsPage } from './pages/CompanyNotificationsPage'
+import { CompanyUserManagementPage } from './pages/CompanyUserManagementPage'
 import { TemplatesPage } from './pages/TemplatesPage'
 import { AdminLayout } from './components/AdminLayout'
 import { ClientLayout } from './components/ClientLayout'
+import { CompanyLayout } from './components/CompanyLayout'
 import { AdminNotificationsPage } from './pages/AdminNotificationsPage'
 
 function App() {
@@ -38,12 +41,30 @@ function App() {
           } />
           <Route path="/company" element={
             <ProtectedRoute>
-              <CompanyDashboardPage />
+              <CompanyLayout>
+                <CompanyDashboardPage />
+              </CompanyLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/company/documents" element={
+            <ProtectedRoute>
+              <CompanyLayout>
+                <CompanyDocumentsPage />
+              </CompanyLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/company/users" element={
+            <ProtectedRoute>
+              <CompanyLayout>
+                <CompanyUserManagementPage />
+              </CompanyLayout>
             </ProtectedRoute>
           } />
           <Route path="/company/notifications" element={
             <ProtectedRoute>
-              <CompanyNotificationsPage />
+              <CompanyLayout>
+                <CompanyNotificationsPage />
+              </CompanyLayout>
             </ProtectedRoute>
           } />
           <Route path="/admin/users" element={

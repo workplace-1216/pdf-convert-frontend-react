@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Bell, ArrowLeft, Trash2, CheckCircle, FileText, XCircle, AlertCircle } from 'lucide-react'
+import { Bell, Trash2, CheckCircle, FileText, XCircle, AlertCircle } from 'lucide-react'
 import { API_URL } from '../config/api.config'
 import { Skeleton } from '../components/Skeleton'
 
@@ -15,7 +14,6 @@ interface Notification {
 }
 
 export const CompanyNotificationsPage: React.FC = () => {
-  const navigate = useNavigate()
   const { t } = useTranslation()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
@@ -135,18 +133,10 @@ export const CompanyNotificationsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="p-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <button
-            onClick={() => navigate('/company')}
-            className="flex items-center space-x-2 text-black hover:text-[#eb3089] transition-colors mb-4"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-medium">{t('company.backToDashboard')}</span>
-          </button>
-
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-black">{t('company.notifications')}</h1>

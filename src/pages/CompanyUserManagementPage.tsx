@@ -82,28 +82,6 @@ export const CompanyUserManagementPage: React.FC = () => {
     }
   }
 
-  const handleOpenModal = (user?: CompanyUser) => {
-    if (user) {
-      setEditingUser(user)
-      setFormData({
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status
-      })
-    } else {
-      setEditingUser(null)
-      setFormData({
-        name: '',
-        email: '',
-        role: 'user',
-        status: 'active'
-      })
-    }
-    setShowModal(true)
-    setErrorMessage('')
-  }
-
   const handleCloseModal = () => {
     setShowModal(false)
     setEditingUser(null)

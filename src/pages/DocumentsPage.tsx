@@ -7,6 +7,8 @@ export const DocumentsPage: React.FC = () => {
   const [documents, setDocuments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [processingStage, setProcessingStage] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -39,9 +41,33 @@ export const DocumentsPage: React.FC = () => {
     if (!selectedFile) return
 
     setUploading(true)
+    setUploadProgress(0)
+    setProcessingStage('Uploading file...')
+
     try {
+      // Simulate upload progress
+      const uploadInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(uploadInterval)
+            return 90
+          }
+          return prev + 10
+        })
+      }, 100)
+
+      setProcessingStage('Processing PDF...')
+
       // Use template ID 1 as default (or 0 if no templates exist)
       const response = await documentApi.upload(selectedFile, 1)
+
+      clearInterval(uploadInterval)
+      setUploadProgress(100)
+      setProcessingStage('Complete!')
+
+      // Wait a moment to show 100% completion
+      await new Promise(resolve => setTimeout(resolve, 500))
+
       setSelectedFile(null)
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
@@ -51,8 +77,11 @@ export const DocumentsPage: React.FC = () => {
     } catch (error) {
       console.error('Upload failed:', error)
       alert('Upload failed. Please try again.')
+      setProcessingStage('Failed')
     } finally {
       setUploading(false)
+      setUploadProgress(0)
+      setProcessingStage('')
     }
   }
 
@@ -142,30 +171,48 @@ export const DocumentsPage: React.FC = () => {
           </div>
 
           {selectedFile && (
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center">
-                <FileText className="h-5 w-5 text-gray-400 mr-3" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
-                  <p className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center">
+                  <FileText className="h-5 w-5 text-gray-400 mr-3" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
+                    <p className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</p>
+                  </div>
                 </div>
+                <button
+                  onClick={handleUpload}
+                  disabled={uploading}
+                  className="btn-primary"
+                >
+                  {uploading ? (
+                    <>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload and Process
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                onClick={handleUpload}
-                disabled={uploading}
-                className="btn-primary"
-              >
-                {uploading ? (
-                  <>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload and Process
-                  </>
-                )}
-              </button>
+
+              {/* Progress Bar */}
+              {uploading && (
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-blue-900">{processingStage}</span>
+                    <span className="text-sm font-semibold text-blue-600">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-blue-200 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

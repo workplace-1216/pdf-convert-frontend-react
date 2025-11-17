@@ -84,16 +84,16 @@ export const documentApi = {
     formData.append('file', file)
     formData.append('templateId', templateId.toString())
     if (batchId) formData.append('batchId', batchId)
-    
+
     const uploadApi = axios.create({
       baseURL: API_URL,
     })
-    
+
     const token = localStorage.getItem('token')
     if (token) {
       uploadApi.defaults.headers.common['Authorization'] = `Bearer ${token}`
     }
-    
+
     return uploadApi.post('/documents/upload', formData).then((res: AxiosResponse<DocumentUploadResponse>) => res.data)
   },
   

@@ -57,8 +57,13 @@ export const LoginPage: React.FC = () => {
           await login({ email: formData.email, password: formData.password })
           // Navigation will be handled by useEffect when user state updates
         } catch (loginError: any) {
+          console.log('[LoginPage] Login error caught:', loginError)
+          console.log('[LoginPage] Login error response:', loginError.response)
+          console.log('[LoginPage] Login error response data:', loginError.response?.data)
+
           // Check if it's a pending company error
           if (loginError.response?.data?.isPending) {
+            console.log('[LoginPage] Pending company detected')
             setPendingCompanyName(loginError.response.data.companyName || 'su empresa')
             setShowPendingModal(true)
             setLoading(false)
@@ -66,6 +71,7 @@ export const LoginPage: React.FC = () => {
           }
           // Check if email needs verification (2FA)
           if (loginError.response?.data?.requiresEmailVerification) {
+            console.log('[LoginPage] Email verification required')
             setOtpEmail(loginError.response.data.email || formData.email)
             setIsLoginOTP(false)
             setShowOTPVerification(true)
@@ -74,13 +80,16 @@ export const LoginPage: React.FC = () => {
           }
           // Check if login OTP is required (2FA on every login)
           if (loginError.response?.data?.requiresLoginOTP) {
+            console.log('[LoginPage] Login OTP required, showing OTP verification page')
+            console.log('[LoginPage] OTP Email:', loginError.response.data.email || formData.email)
             setOtpEmail(loginError.response.data.email || formData.email)
             setIsLoginOTP(true)
             setShowOTPVerification(true)
             setLoading(false)
             return
           }
-          // Re-throw for normal error handling
+          // Re-throw for normal error handling (will be caught by outer catch)
+          console.log('[LoginPage] No special handling, re-throwing error')
           throw loginError
         }
       } else {
@@ -118,6 +127,35 @@ export const LoginPage: React.FC = () => {
         await completeRegistration([])
       }
     } catch (err: any) {
+      console.log('[LoginPage] Outer catch - error:', err)
+
+      // Double-check for OTP requirements in outer catch (safety net)
+      if (err.response?.data?.requiresLoginOTP) {
+        console.log('[LoginPage] Outer catch detected requiresLoginOTP - showing OTP page')
+        setOtpEmail(err.response.data.email || formData.email)
+        setIsLoginOTP(true)
+        setShowOTPVerification(true)
+        setLoading(false)
+        return
+      }
+
+      if (err.response?.data?.requiresEmailVerification) {
+        console.log('[LoginPage] Outer catch detected requiresEmailVerification - showing OTP page')
+        setOtpEmail(err.response.data.email || formData.email)
+        setIsLoginOTP(false)
+        setShowOTPVerification(true)
+        setLoading(false)
+        return
+      }
+
+      if (err.response?.data?.isPending) {
+        console.log('[LoginPage] Outer catch detected isPending')
+        setPendingCompanyName(err.response.data.companyName || 'su empresa')
+        setShowPendingModal(true)
+        setLoading(false)
+        return
+      }
+
       // Handle different error response formats
       let errorMessage = 'An error occurred'
 
@@ -134,6 +172,7 @@ export const LoginPage: React.FC = () => {
         errorMessage = err.message
       }
 
+      console.log('[LoginPage] Setting error message:', errorMessage)
       setError(errorMessage)
     } finally {
       setLoading(false)

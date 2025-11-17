@@ -58,11 +58,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (credentials: LoginRequest) => {
     try {
       const response = await authApi.login(credentials)
-      
+
       // Set token immediately
       setToken(response.token)
       localStorage.setItem('token', response.token)
-      
+
           // Create a user object from the response
           const user: User = {
             id: 0, // We'll get this from /auth/me
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             createdAt: new Date().toISOString()
           }
       setUser(user)
-      
+
       // Try to get full user details, but don't fail if it doesn't work
       try {
         const fullUser = await authApi.getCurrentUser()
@@ -81,7 +81,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.warn('Could not fetch full user details:', err)
         // Don't throw the error, just keep the basic user info
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Log the full error for debugging
+      console.log('[AuthContext] Login error:', error)
+      console.log('[AuthContext] Error response:', error.response)
+      console.log('[AuthContext] Error response data:', error.response?.data)
+
+      // Re-throw to let the caller handle it (like LoginPage checking for requiresLoginOTP)
       throw error
     }
   }

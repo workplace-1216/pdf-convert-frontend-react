@@ -9,7 +9,6 @@ import {
   ArrowUpRight,
   Server
 } from 'lucide-react'
-import LanguageSwitcher from '../components/LanguageSwitcher'
 import { adminApi } from '../services/api'
 import type { AdminStats, ReportsAnalyticsResponse } from '../types/api'
 import { DashboardSkeleton } from '../components/Skeleton'

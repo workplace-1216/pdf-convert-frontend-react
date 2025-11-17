@@ -2,7 +2,7 @@ export interface User {
   id: number
   email: string
   role: 'Admin' | 'Client' | 'Company'
-  createdAt: string
+  createdAt?: string
 }
 
 export interface LoginRequest {

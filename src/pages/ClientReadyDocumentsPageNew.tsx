@@ -1278,11 +1278,6 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       const validFiles = pdfFiles.filter(file => file.size <= maxSizeBytes)
       
       if (oversizedFiles.length > 0) {
-        const fileList = oversizedFiles.map(f => {
-          const sizeKB = Math.round(f.size / 1024)
-          return `${f.name} (${sizeKB}KB)`
-        }).join(', ')
-        
         showFeedback('error', t('common.error'), t('documents.uploadFailed'))
       }
       
@@ -1318,11 +1313,6 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       const validFiles = pdfFiles.filter(file => file.size <= maxSizeBytes)
       
       if (oversizedFiles.length > 0) {
-        const fileList = oversizedFiles.map(f => {
-          const sizeKB = Math.round(f.size / 1024)
-          return `${f.name} (${sizeKB}KB)`
-        }).join(', ')
-        
         showFeedback('error', t('common.error'), t('documents.uploadFailed'))
       }
       

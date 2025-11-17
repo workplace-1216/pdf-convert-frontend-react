@@ -102,8 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const user: User = {
         id: response.userId,
         email: response.email,
-        role: response.role as 'Admin' | 'Client' | 'Company',
-        createdAt: response.createdAt
+        role: response.role as 'Admin' | 'Client' | 'Company'
       }
       setUser(user)
 

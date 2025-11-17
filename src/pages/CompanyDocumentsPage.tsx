@@ -42,7 +42,7 @@ export const CompanyDocumentsPage: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [documentToDelete, setDocumentToDelete] = useState<ReceivedDocument | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const pageSize = 10
+  const pageSize = 5
 
   useEffect(() => {
     fetchDocuments()

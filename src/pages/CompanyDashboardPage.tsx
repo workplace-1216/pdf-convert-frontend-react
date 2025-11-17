@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import {
   FileText,
   User,
-  Calendar,
   BarChart3,
   TrendingUp,
   Clock,
@@ -42,7 +41,7 @@ type TimePeriod = 'daily' | 'weekly' | 'monthly' | 'yearly'
 export const CompanyDashboardPage: React.FC = () => {
   const { t } = useTranslation()
   const [documents, setDocuments] = useState<ReceivedDocument[]>([])
-  const [loading, setLoading] = useState(true)
+  const [_loading, setLoading] = useState(true)
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('weekly')
 
   useEffect(() => {
@@ -314,12 +313,12 @@ export const CompanyDashboardPage: React.FC = () => {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name.split('@')[0]}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }: { name?: string; percent?: number }) => `${name?.split('@')[0] || 'Unknown'}: ${((percent || 0) * 100).toFixed(0)}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {clientDistributionData.map((entry, index) => (
+                    {clientDistributionData.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -378,7 +377,7 @@ export const CompanyDashboardPage: React.FC = () => {
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                     }}
                     labelStyle={{ color: '#000', fontWeight: 'bold' }}
-                    formatter={(value: number, name: string, props: any) => [
+                    formatter={(value: number, _name: string, props: any) => [
                       value,
                       `${t('company.documents')} (${props.payload.fullEmail})`
                     ]}
@@ -411,7 +410,7 @@ export const CompanyDashboardPage: React.FC = () => {
 
           {recentActivity.length > 0 ? (
             <div className="space-y-4">
-              {recentActivity.map((doc, index) => (
+              {recentActivity.map((doc) => (
                 <div
                   key={doc.id}
                   className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-50 to-white hover:from-[#64c7cd]/5 hover:to-white transition-all duration-200 border border-gray-100"

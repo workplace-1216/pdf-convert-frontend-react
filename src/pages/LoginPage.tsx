@@ -164,7 +164,7 @@ export const LoginPage: React.FC = () => {
       console.log('[Registration] User registered:', registeredUser)
 
       // Step 2: Check if email verification is required (2FA)
-      if (registeredUser.requiresEmailVerification) {
+      if ((registeredUser as any).requiresEmailVerification) {
         console.log('[Registration] Email verification required, showing OTP screen')
         setOtpEmail(formData.email)
         setIsLoginOTP(false)

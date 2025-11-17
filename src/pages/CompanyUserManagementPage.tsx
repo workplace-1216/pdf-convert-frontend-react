@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Users,
-  Plus,
-  Edit,
+  Eye,
   Trash2,
   XCircle,
   AlertCircle,
@@ -31,6 +30,8 @@ export const CompanyUserManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showViewModal, setShowViewModal] = useState(false)
+  const [viewingUser, setViewingUser] = useState<CompanyUser | null>(null)
   const [editingUser, setEditingUser] = useState<CompanyUser | null>(null)
   const [deletingUser, setDeletingUser] = useState<CompanyUser | null>(null)
   const [saving, setSaving] = useState(false)
@@ -44,7 +45,7 @@ export const CompanyUserManagementPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'user' as 'admin' | 'user' | 'viewer',
+    role: 'user' as 'client' | 'admin' | 'user' | 'viewer',
     status: 'active' as 'active' | 'inactive'
   })
 
@@ -107,6 +108,16 @@ export const CompanyUserManagementPage: React.FC = () => {
     setShowModal(false)
     setEditingUser(null)
     setErrorMessage('')
+  }
+
+  const handleViewUser = (user: CompanyUser) => {
+    setViewingUser(user)
+    setShowViewModal(true)
+  }
+
+  const handleCloseViewModal = () => {
+    setShowViewModal(false)
+    setViewingUser(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -279,11 +290,11 @@ export const CompanyUserManagementPage: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => handleOpenModal(user)}
+                          onClick={() => handleViewUser(user)}
                           className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
-                          title={t('company.editUser')}
+                          title={t('admin.viewDetails')}
                         >
-                          <Edit className="h-4 w-4 text-blue-600" />
+                          <Eye className="h-4 w-4 text-blue-600" />
                         </button>
                         <button
                           onClick={() => handleDeleteClick(user)}
@@ -440,6 +451,130 @@ export const CompanyUserManagementPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View User Modal */}
+      {showViewModal && viewingUser && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handleCloseViewModal()
+            }
+          }}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl border border-[#64c7cd]/30 w-full max-w-md p-6 relative">
+            <button
+              onClick={handleCloseViewModal}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <XCircle className="h-5 w-5 text-black" />
+            </button>
+
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="p-3 bg-[#64c7cd] rounded-xl">
+                <User className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-black">{t('admin.userDetails')}</h3>
+            </div>
+
+            <div className="space-y-4">
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-black/60 mb-1">
+                  {t('company.fullName')}
+                </label>
+                <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black">
+                  {viewingUser.name}
+                </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-black/60 mb-1">
+                  {t('company.emailAddress')}
+                </label>
+                <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black">
+                  {viewingUser.email}
+                </div>
+              </div>
+
+              {/* RFC */}
+              {viewingUser.rfc && (
+                <div>
+                  <label className="block text-sm font-medium text-black/60 mb-1">
+                    RFC
+                  </label>
+                  <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black font-mono">
+                    {viewingUser.rfc}
+                  </div>
+                </div>
+              )}
+
+              {/* WhatsApp */}
+              {viewingUser.whatsapp && (
+                <div>
+                  <label className="block text-sm font-medium text-black/60 mb-1">
+                    WhatsApp
+                  </label>
+                  <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black">
+                    {viewingUser.whatsapp}
+                  </div>
+                </div>
+              )}
+
+              {/* Role */}
+              <div>
+                <label className="block text-sm font-medium text-black/60 mb-1">
+                  {t('company.userRole')}
+                </label>
+                <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">
+                  <span className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                    {getRoleLabel(viewingUser.role)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-sm font-medium text-black/60 mb-1">
+                  {t('company.userStatus')}
+                </label>
+                <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">
+                  <span
+                    className={`px-3 py-1 text-xs font-medium rounded-full ${
+                      viewingUser.status === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {getStatusLabel(viewingUser.status)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Created At */}
+              <div>
+                <label className="block text-sm font-medium text-black/60 mb-1">
+                  {t('admin.createdAt')}
+                </label>
+                <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black">
+                  {new Date(viewingUser.createdAt).toLocaleString()}
+                </div>
+              </div>
+            </div>
+
+            {/* Close Button */}
+            <div className="mt-6">
+              <button
+                onClick={handleCloseViewModal}
+                className="w-full px-4 py-3 text-sm font-medium text-white bg-[#64c7cd] rounded-xl hover:bg-[#64c7cd]/90 transition-all duration-300 hover:scale-105 shadow-lg"
+              >
+                {t('company.close')}
+              </button>
+            </div>
           </div>
         </div>
       )}

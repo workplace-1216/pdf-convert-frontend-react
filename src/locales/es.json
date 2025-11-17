@@ -390,7 +390,10 @@
     "sentTo": "Enviado a",
     "metadata": "Metadatos",
     "originalFile": "Archivo Original",
-    "processedFile": "Archivo Procesado"
+    "processedFile": "Archivo Procesado",
+    "downloadedFiles": "Descargado {{count}} archivo(s)",
+    "noDocumentsInFolder": "La carpeta actual no contiene documentos para descargar",
+    "noDocumentsInSelected": "Las carpetas seleccionadas no contienen documentos para descargar"
   },
   "admin": {
     "dashboard": "Panel de Administrador",
@@ -719,6 +722,7 @@
   },
   "errors": {
     "somethingWentWrong": "Algo salió mal",
+    "errorOccurred": "Ocurrió un error",
     "tryAgain": "Por favor intenta de nuevo",
     "networkError": "Error de red. Por favor verifica tu conexión.",
     "unauthorized": "No autorizado. Por favor inicia sesión.",
@@ -729,6 +733,7 @@
     "uploadError": "Error al subir archivo",
     "deleteError": "Error al eliminar elemento",
     "updateError": "Error al actualizar elemento",
-    "createError": "Error al crear elemento"
+    "createError": "Error al crear elemento",
+    "loadFailed": "Error al cargar"
   }
 }

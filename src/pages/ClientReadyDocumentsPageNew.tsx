@@ -386,11 +386,22 @@ export const ClientReadyDocumentsPage: React.FC = () => {
         }
       }
       
-      // Fallback: derive RFC-based name from current document metadata
+      // Fallback: derive RFC-based name from current document metadata with timestamp
       if (!filename) {
         const meta = readyDocs.find(d => d.id === documentId)
         const rfcPrefix = meta?.rfcEmisor ? meta.rfcEmisor.slice(0, 4).toUpperCase() : 'XXXX'
-        filename = `${rfcPrefix}_document.pdf`
+
+        // Generate timestamp in format YYYYMMDD-HHMMSS
+        const now = new Date()
+        const year = now.getFullYear()
+        const month = String(now.getMonth() + 1).padStart(2, '0')
+        const day = String(now.getDate()).padStart(2, '0')
+        const hours = String(now.getHours()).padStart(2, '0')
+        const minutes = String(now.getMinutes()).padStart(2, '0')
+        const seconds = String(now.getSeconds()).padStart(2, '0')
+        const timestamp = `${year}${month}${day}-${hours}${minutes}${seconds}`
+
+        filename = `${rfcPrefix}-${timestamp}.pdf`
       }
 
       // Create a download link
@@ -398,14 +409,21 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       const link = document.createElement('a')
       link.href = url
       link.download = filename
+      link.style.display = 'none'
 
       // Trigger the download
       document.body.appendChild(link)
-      link.click()
 
-      // Clean up
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      // Use setTimeout to ensure the link is in DOM before clicking
+      setTimeout(() => {
+        link.click()
+
+        // Clean up after a short delay
+        setTimeout(() => {
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(url)
+        }, 100)
+      }, 0)
 
     } catch (error) {
       console.error('Download failed:', error)
@@ -1028,7 +1046,7 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       try {
         const documentIds = selectedFolder.documents.map(d => Number(d.id))
         if (documentIds.length === 0) {
-          showFeedback('info', 'Sin documentos', 'La carpeta actual no contiene documentos para descargar.')
+          showFeedback('info', t('documents.noDocuments'), t('documents.noDocumentsInFolder'))
           return
         }
         
@@ -1060,7 +1078,18 @@ export const ClientReadyDocumentsPage: React.FC = () => {
             if (!fileName) {
               const meta = readyDocs.find(d => d.id === String(docId))
               const rfcPrefix = meta?.rfcEmisor ? meta.rfcEmisor.slice(0, 4).toUpperCase() : 'XXXX'
-              fileName = `${rfcPrefix}_document.pdf`
+
+              // Generate timestamp for fallback filename
+              const now = new Date()
+              const year = now.getFullYear()
+              const month = String(now.getMonth() + 1).padStart(2, '0')
+              const day = String(now.getDate()).padStart(2, '0')
+              const hours = String(now.getHours()).padStart(2, '0')
+              const minutes = String(now.getMinutes()).padStart(2, '0')
+              const seconds = String(now.getSeconds()).padStart(2, '0')
+              const timestamp = `${year}${month}${day}-${hours}${minutes}${seconds}`
+
+              fileName = `${rfcPrefix}-${timestamp}.pdf`
             }
             // Ensure unique name inside this folder
             const uniqueName = ensureUniqueFileName(fileName, usedNames)
@@ -1071,10 +1100,21 @@ export const ClientReadyDocumentsPage: React.FC = () => {
         }
         
         const zipBlob = await zip.generateAsync({ type: 'blob' })
+
+        // Generate RFC-based ZIP filename with timestamp
+        const firstDoc = selectedFolder.documents[0]
+        const rfcPrefix = firstDoc?.rfcEmisor ? firstDoc.rfcEmisor.slice(0, 4).toUpperCase() : 'XXXX'
         const ts = new Date()
-        const dateStr = `${ts.getFullYear()}${String(ts.getMonth() + 1).padStart(2, '0')}${String(ts.getDate()).padStart(2, '0')}_${String(ts.getHours()).padStart(2, '0')}${String(ts.getMinutes()).padStart(2, '0')}${String(ts.getSeconds()).padStart(2, '0')}`
-        await triggerDownload(`carpeta_${dateStr}.zip`, zipBlob)
-        showFeedback('success', t('common.success'), `${t('documents.download')}: ${documentIds.length} ${t('documents.fileName')}(s)`)
+        const year = ts.getFullYear()
+        const month = String(ts.getMonth() + 1).padStart(2, '0')
+        const day = String(ts.getDate()).padStart(2, '0')
+        const hours = String(ts.getHours()).padStart(2, '0')
+        const minutes = String(ts.getMinutes()).padStart(2, '0')
+        const seconds = String(ts.getSeconds()).padStart(2, '0')
+        const timestamp = `${year}${month}${day}-${hours}${minutes}${seconds}`
+
+        await triggerDownload(`${rfcPrefix}-${timestamp}.zip`, zipBlob)
+        showFeedback('success', t('common.success'), t('documents.downloadedFiles', { count: documentIds.length }))
       } catch (error) {
         console.error('Error downloading folder:', error)
         showFeedback('error', t('common.error'), t('errors.somethingWentWrong'))
@@ -1124,7 +1164,18 @@ export const ClientReadyDocumentsPage: React.FC = () => {
             if (!fileName) {
               const meta = readyDocs.find(d => d.id === String(docId))
               const rfcPrefix = meta?.rfcEmisor ? meta.rfcEmisor.slice(0, 4).toUpperCase() : 'XXXX'
-              fileName = `${rfcPrefix}_document.pdf`
+
+              // Generate timestamp for fallback filename
+              const now = new Date()
+              const year = now.getFullYear()
+              const month = String(now.getMonth() + 1).padStart(2, '0')
+              const day = String(now.getDate()).padStart(2, '0')
+              const hours = String(now.getHours()).padStart(2, '0')
+              const minutes = String(now.getMinutes()).padStart(2, '0')
+              const seconds = String(now.getSeconds()).padStart(2, '0')
+              const timestamp = `${year}${month}${day}-${hours}${minutes}${seconds}`
+
+              fileName = `${rfcPrefix}-${timestamp}.pdf`
             }
             // Ensure unique name inside this folder
             const uniqueName = ensureUniqueFileName(fileName, usedNames)
@@ -1137,15 +1188,30 @@ export const ClientReadyDocumentsPage: React.FC = () => {
       }
       
       if (totalDocs === 0) {
-        showFeedback('info', 'Sin documentos', 'Las carpetas seleccionadas no contienen documentos para descargar.')
+        showFeedback('info', t('documents.noDocuments'), t('documents.noDocumentsInSelected'))
         return
       }
 
       const zipBlob = await zip.generateAsync({ type: 'blob' })
+
+      // Generate RFC-based ZIP filename with timestamp from first document
+      let rfcPrefix = 'XXXX'
+      if (folders.length > 0 && folders[0].documents.length > 0) {
+        const firstDoc = folders[0].documents[0]
+        rfcPrefix = firstDoc?.rfcEmisor ? firstDoc.rfcEmisor.slice(0, 4).toUpperCase() : 'XXXX'
+      }
+
       const ts = new Date()
-      const dateStr = `${ts.getFullYear()}${String(ts.getMonth() + 1).padStart(2, '0')}${String(ts.getDate()).padStart(2, '0')}_${String(ts.getHours()).padStart(2, '0')}${String(ts.getMinutes()).padStart(2, '0')}${String(ts.getSeconds()).padStart(2, '0')}`
-      await triggerDownload(`carpetas_${dateStr}.zip`, zipBlob)
-      showFeedback('success', t('common.success'), `${t('documents.download')}: ${totalDocs} ${t('documents.fileName')}(s)`)
+      const year = ts.getFullYear()
+      const month = String(ts.getMonth() + 1).padStart(2, '0')
+      const day = String(ts.getDate()).padStart(2, '0')
+      const hours = String(ts.getHours()).padStart(2, '0')
+      const minutes = String(ts.getMinutes()).padStart(2, '0')
+      const seconds = String(ts.getSeconds()).padStart(2, '0')
+      const timestamp = `${year}${month}${day}-${hours}${minutes}${seconds}`
+
+      await triggerDownload(`${rfcPrefix}-${timestamp}.zip`, zipBlob)
+      showFeedback('success', t('common.success'), t('documents.downloadedFiles', { count: totalDocs }))
     } catch (error) {
       console.error('Merged batch download failed:', error)
       showFeedback('error', t('common.error'), t('errors.somethingWentWrong'))
@@ -1784,14 +1850,14 @@ export const ClientReadyDocumentsPage: React.FC = () => {
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handlePreviewDocument(doc) }}
                                   className="p-2 text-[#64c7cd] hover:text-[#64c7cd]/80 hover:bg-[#64c7cd]/10 rounded-lg transition-all duration-200"
-                                  title="Vista previa del PDF"
+                                  title={t('documents.preview')}
                                 >
                                   <Eye className="h-4 w-4" />
                                 </button>
                                 <button
                                   onClick={async (e) => { e.stopPropagation(); await handleDownload(doc.id) }}
                                   className="p-2 text-[#a5cc55] hover:text-[#a5cc55]/80 hover:bg-[#a5cc55]/10 rounded-lg transition-all duration-200"
-                                  title="Descargar documento"
+                                  title={t('documents.download')}
                                 >
                                   <Download className="h-4 w-4" />
                                 </button>

@@ -112,7 +112,7 @@ export const CompanyNotificationBell: React.FC = () => {
       >
         <Bell className="h-5 w-5 text-white" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-[#eb3089] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+          <span className="absolute -top-1 -right-1 bg-black/30 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}

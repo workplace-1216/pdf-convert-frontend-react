@@ -390,7 +390,10 @@
     "sentTo": "Sent To",
     "metadata": "Metadata",
     "originalFile": "Original File",
-    "processedFile": "Processed File"
+    "processedFile": "Processed File",
+    "downloadedFiles": "Downloaded {{count}} file(s)",
+    "noDocumentsInFolder": "The current folder contains no documents to download",
+    "noDocumentsInSelected": "The selected folders contain no documents to download"
   },
   "admin": {
     "dashboard": "Admin Dashboard",
@@ -719,6 +722,7 @@
   },
   "errors": {
     "somethingWentWrong": "Something went wrong",
+    "errorOccurred": "An error occurred",
     "tryAgain": "Please try again",
     "networkError": "Network error. Please check your connection.",
     "unauthorized": "Unauthorized. Please log in.",
@@ -729,6 +733,7 @@
     "uploadError": "Error uploading file",
     "deleteError": "Error deleting item",
     "updateError": "Error updating item",
-    "createError": "Error creating item"
+    "createError": "Error creating item",
+    "loadFailed": "Failed to load"
   }
 }
